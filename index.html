@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lesson 5 Grammar Quiz</title>
+    <title>Grammar Quiz - Lesson 5 & 6</title>
     <style>
         * {
             margin: 0;
@@ -45,6 +45,7 @@
             color: white;
             padding: 30px;
             text-align: center;
+            position: relative;
         }
 
         .header h1 {
@@ -56,6 +57,168 @@
         .header p {
             font-size: 1.1em;
             opacity: 0.95;
+        }
+
+        /* Exit button styles */
+        .exit-btn {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: rgba(255, 255, 255, 0.2);
+            border: 2px solid white;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 0.9em;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: none;
+        }
+
+        .exit-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: scale(1.05);
+        }
+
+        .exit-btn.show {
+            display: block;
+        }
+
+        /* Confirmation dialog styles */
+        .confirmation-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        .confirmation-overlay.show {
+            display: flex;
+        }
+
+        .confirmation-dialog {
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+            max-width: 400px;
+            text-align: center;
+            animation: slideIn 0.3s ease-out;
+        }
+
+        .confirmation-dialog h3 {
+            color: #764ba2;
+            margin-bottom: 15px;
+            font-size: 1.3em;
+        }
+
+        .confirmation-dialog p {
+            color: #666;
+            margin-bottom: 25px;
+            line-height: 1.5;
+        }
+
+        .confirmation-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+        }
+
+        .confirm-btn, .cancel-btn {
+            padding: 10px 25px;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .confirm-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .confirm-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .cancel-btn {
+            background: #f0f0f0;
+            color: #666;
+        }
+
+        .cancel-btn:hover {
+            background: #e0e0e0;
+        }
+
+        /* Lesson selector styles */
+        .lesson-selector {
+            background: #f8f9fa;
+            padding: 25px;
+            text-align: center;
+            border-bottom: 2px solid #e0e0e0;
+        }
+
+        .lesson-selector h2 {
+            color: #764ba2;
+            margin-bottom: 20px;
+            font-size: 1.5em;
+        }
+
+        .lesson-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .lesson-btn {
+            padding: 20px 40px;
+            background: white;
+            border: 3px solid #667eea;
+            border-radius: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            min-width: 200px;
+        }
+
+        .lesson-btn:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
+        }
+
+        .lesson-btn.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .lesson-btn h3 {
+            font-size: 1.3em;
+            margin-bottom: 10px;
+        }
+
+        .lesson-btn p {
+            font-size: 0.95em;
+            opacity: 0.9;
+        }
+
+        /* Hide lesson content by default */
+        .lesson-content {
+            display: none;
+        }
+
+        .lesson-content.active {
+            display: block;
         }
 
         .navigation {
@@ -456,16 +619,16 @@
             .header h1 {
                 font-size: 1.5em;
             }
-            
+
             .navigation {
                 padding: 15px;
             }
-            
+
             .nav-btn {
                 padding: 8px 15px;
                 font-size: 0.9em;
             }
-            
+
             .content {
                 padding: 20px;
             }
@@ -484,6 +647,16 @@
             .section-nav button {
                 width: 100%;
             }
+
+            .lesson-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .lesson-btn {
+                width: 100%;
+                max-width: 300px;
+            }
         }
 
         @media (prefers-reduced-motion: reduce) {
@@ -499,505 +672,1014 @@
 </head>
 <body>
     <button id="soundToggle" class="sound-toggle" onclick="toggleSound()">🔊 사운드: 켜짐</button>
-    
+
     <div class="container">
         <div class="header">
-            <h1>Lesson 5 Grammar Quiz</h1>
-            <p>가정법 과거 & 의문사+to부정사</p>
+            <button class="exit-btn" id="exitBtn" onclick="showExitConfirmation()">← 나가기</button>
+            <h1 id="headerTitle">Grammar Quiz</h1>
+            <p id="headerSubtitle">Lesson 5 & Lesson 6</p>
         </div>
 
-        <div class="navigation">
-            <button class="nav-btn active" onclick="showSection(this, 'grammar')">문법 정리</button>
-            <button class="nav-btn" onclick="showSection(this, 'checkup')">Check Up</button>
-            <button class="nav-btn" onclick="showSection(this, 'level1')">Level 1</button>
-            <button class="nav-btn" onclick="showSection(this, 'level2')">Level 2</button>
-            <button class="nav-btn" onclick="showSection(this, 'score')">점수 확인</button>
+        <!-- Confirmation Dialog -->
+        <div class="confirmation-overlay" id="confirmationOverlay">
+            <div class="confirmation-dialog">
+                <h3>퀴즈를 종료하시겠습니까?</h3>
+                <p>진행 중인 퀴즈를 종료하고 레슨 선택 화면으로 돌아갑니다.<br>현재까지의 답안은 저장되지 않습니다.</p>
+                <div class="confirmation-buttons">
+                    <button class="confirm-btn" onclick="confirmExit()">종료하기</button>
+                    <button class="cancel-btn" onclick="cancelExit()">계속하기</button>
+                </div>
+            </div>
         </div>
 
-        <div class="content">
-            <!-- Grammar Section -->
-            <div id="grammar" class="section active">
-                <div class="grammar-box">
-                    <h3>A. 가정법 과거 (Past Subjunctive)</h3>
-                    <ul>
-                        <li><strong>형태:</strong> If + 주어 + were/동사의 과거형 ~, 주어 + 조동사의 과거형(would/should/could/might) + 동사원형</li>
-                        <li><strong>의미:</strong> "만약 ~한다면, ...할 텐데" - 현재 사실과 반대되는 가정을 나타냄</li>
-                    </ul>
-                    <div class="example">
-                        <strong>예문:</strong><br>
-                        If I were a bird, I would fly. (내가 새라면, 나는 날아오를 텐데.)<br>
-                        If she had a flying carpet, she could travel all over the world. (그녀가 날아다니는 양탄자를 가지고 있다면, 전 세계를 여행할 수 있을 텐데.)
-                    </div>
-                </div>
+        <!-- Lesson Selector -->
+        <div class="lesson-selector" id="lessonSelector">
+            <h2>학습할 과를 선택하세요</h2>
+            <div class="lesson-buttons">
+                <button class="lesson-btn" onclick="selectLesson('lesson5')">
+                    <h3>Lesson 5</h3>
+                    <p>가정법 과거 & 의문사+to부정사</p>
+                </button>
+                <button class="lesson-btn" onclick="selectLesson('lesson6')">
+                    <h3>Lesson 6</h3>
+                    <p>목적을 나타내는 so that & enough to 부정사</p>
+                </button>
+            </div>
+        </div>
 
-                <div class="grammar-box">
-                    <h3>B. 의문사+to부정사 (Question Word + to-infinitive)</h3>
-                    <ul>
-                        <li><strong>when + to + 동사원형:</strong> 언제 ~할지</li>
-                        <li><strong>how + to + 동사원형:</strong> 어떻게 ~할지, ~하는 방법</li>
-                        <li><strong>where + to + 동사원형:</strong> 어디서 ~할지</li>
-                        <li><strong>what + to + 동사원형:</strong> 무엇을 ~할지</li>
-                    </ul>
-                    <div class="example">
-                        <strong>예문:</strong><br>
-                        We didn't know how to read music. (우리는 어떻게 악보를 읽는지 몰랐다.)<br>
-                        I told him when to feed the dog. (나는 언제 개에게 먹이를 줄지 그에게 말했다.)
-                    </div>
-                </div>
+        <!-- Lesson 5 Content -->
+        <div class="lesson-content" id="lesson5Content">
+            <div class="navigation">
+                <button class="nav-btn active" onclick="showSection(this, 'L5-grammar')">문법 정리</button>
+                <button class="nav-btn" onclick="showSection(this, 'L5-checkup')">Check Up</button>
+                <button class="nav-btn" onclick="showSection(this, 'L5-level1')">Level 1</button>
+                <button class="nav-btn" onclick="showSection(this, 'L5-level2')">Level 2</button>
+                <button class="nav-btn" onclick="showSection(this, 'L5-score')">점수 확인</button>
             </div>
 
-            <!-- Check Up Section -->
-            <div id="checkup" class="section">
-                <h2>Check Up - 기본 문법 확인</h2>
-                
-                <h3>A. 가정법 과거 - 동사 형태</h3>
-                <div class="question">
-                    <div class="question-header">
-                        <div class="question-number">1</div>
-                        <div class="question-text">If it _____, I would put on the boots.</div>
+            <div class="content">
+                <!-- L5 Grammar Section -->
+                <div id="L5-grammar" class="section active">
+                    <div class="grammar-box">
+                        <h3>A. 가정법 과거 (Past Subjunctive)</h3>
+                        <ul>
+                            <li><strong>형태:</strong> If + 주어 + were/동사의 과거형 ~, 주어 + 조동사의 과거형(would/should/could/might) + 동사원형</li>
+                            <li><strong>의미:</strong> "만약 ~한다면, ...할 텐데" - 현재 사실과 반대되는 가정을 나타냄</li>
+                        </ul>
+                        <div class="example">
+                            <strong>예문:</strong><br>
+                            If I were a bird, I would fly. (내가 새라면, 나는 날아오를 텐데.)<br>
+                            If she had a flying carpet, she could travel all over the world. (그녀가 날아다니는 양탄자를 가지고 있다면, 전 세계를 여행할 수 있을 텐데.)
+                        </div>
                     </div>
-                    <div class="input-container">
-                        <input type="text" id="checkup-a-1" placeholder="답을 입력하세요">
+
+                    <div class="grammar-box">
+                        <h3>B. 의문사+to부정사 (Question Word + to-infinitive)</h3>
+                        <ul>
+                            <li><strong>when + to + 동사원형:</strong> 언제 ~할지</li>
+                            <li><strong>how + to + 동사원형:</strong> 어떻게 ~할지, ~하는 방법</li>
+                            <li><strong>where + to + 동사원형:</strong> 어디서 ~할지</li>
+                            <li><strong>what + to + 동사원형:</strong> 무엇을 ~할지</li>
+                        </ul>
+                        <div class="example">
+                            <strong>예문:</strong><br>
+                            We didn't know how to read music. (우리는 어떻게 악보를 읽는지 몰랐다.)<br>
+                            I told him when to feed the dog. (나는 언제 개에게 먹이를 줄지 그에게 말했다.)
+                        </div>
                     </div>
-                    <button class="check-btn" onclick="checkAnswer('checkup-a-1', 'rained')">정답 확인</button>
-                    <button class="show-answer-btn" onclick="showAnswer('checkup-a-1', 'rained')">답 보기</button>
-                    <div id="feedback-checkup-a-1" class="feedback" role="status" aria-live="polite"></div>
                 </div>
 
-                <div class="question">
-                    <div class="question-header">
-                        <div class="question-number">2</div>
-                        <div class="question-text">If I _____ a magic lamp, I would make three wishes.</div>
+                <!-- L5 Check Up Section -->
+                <div id="L5-checkup" class="section">
+                    <h2>Check Up - 기본 문법 확인</h2>
+
+                    <h3>A. 가정법 과거 - 동사 형태</h3>
+                    <div class="question">
+                        <div class="question-header">
+                            <div class="question-number">1</div>
+                            <div class="question-text">If it _____, I would put on the boots.</div>
+                        </div>
+                        <div class="input-container">
+                            <input type="text" id="L5-checkup-a-1" placeholder="답을 입력하세요">
+                        </div>
+                        <button class="check-btn" onclick="checkAnswer('L5-checkup-a-1', 'rained')">정답 확인</button>
+                        <button class="show-answer-btn" onclick="showAnswer('L5-checkup-a-1', 'rained')">답 보기</button>
+                        <div id="feedback-L5-checkup-a-1" class="feedback" role="status" aria-live="polite"></div>
                     </div>
-                    <div class="input-container">
-                        <input type="text" id="checkup-a-2" placeholder="답을 입력하세요">
+
+                    <div class="question">
+                        <div class="question-header">
+                            <div class="question-number">2</div>
+                            <div class="question-text">If I _____ a magic lamp, I would make three wishes.</div>
+                        </div>
+                        <div class="input-container">
+                            <input type="text" id="L5-checkup-a-2" placeholder="답을 입력하세요">
+                        </div>
+                        <button class="check-btn" onclick="checkAnswer('L5-checkup-a-2', 'had')">정답 확인</button>
+                        <button class="show-answer-btn" onclick="showAnswer('L5-checkup-a-2', 'had')">답 보기</button>
+                        <div id="feedback-L5-checkup-a-2" class="feedback" role="status" aria-live="polite"></div>
                     </div>
-                    <button class="check-btn" onclick="checkAnswer('checkup-a-2', 'had')">정답 확인</button>
-                    <button class="show-answer-btn" onclick="showAnswer('checkup-a-2', 'had')">답 보기</button>
-                    <div id="feedback-checkup-a-2" class="feedback" role="status" aria-live="polite"></div>
+
+                    <div class="question">
+                        <div class="question-header">
+                            <div class="question-number">3</div>
+                            <div class="question-text">If he _____ a policeman, he would help people.</div>
+                        </div>
+                        <div class="input-container">
+                            <input type="text" id="L5-checkup-a-3" placeholder="답을 입력하세요">
+                        </div>
+                        <button class="check-btn" onclick="checkAnswer('L5-checkup-a-3', 'were')">정답 확인</button>
+                        <button class="show-answer-btn" onclick="showAnswer('L5-checkup-a-3', 'were')">답 보기</button>
+                        <div id="feedback-L5-checkup-a-3" class="feedback" role="status" aria-live="polite"></div>
+                    </div>
+
+                    <h3>B. 의문사+to부정사</h3>
+                    <div class="question">
+                        <div class="question-header">
+                            <div class="question-number">1</div>
+                            <div class="question-text">I don't know _____ _____ _____ next. (무엇을 해야 할지)</div>
+                        </div>
+                        <div class="input-container">
+                            <input type="text" id="L5-checkup-b-1" placeholder="답을 입력하세요">
+                        </div>
+                        <button class="check-btn" onclick="checkAnswer('L5-checkup-b-1', 'what to do')">정답 확인</button>
+                        <button class="show-answer-btn" onclick="showAnswer('L5-checkup-b-1', 'what to do')">답 보기</button>
+                        <div id="feedback-L5-checkup-b-1" class="feedback" role="status" aria-live="polite"></div>
+                    </div>
+
+                    <div class="question">
+                        <div class="question-header">
+                            <div class="question-number">2</div>
+                            <div class="question-text">Have you decided _____ _____ _____ for your vacation? (어디로 가야 할지)</div>
+                        </div>
+                        <div class="input-container">
+                            <input type="text" id="L5-checkup-b-2" placeholder="답을 입력하세요">
+                        </div>
+                        <button class="check-btn" onclick="checkAnswer('L5-checkup-b-2', 'where to go')">정답 확인</button>
+                        <button class="show-answer-btn" onclick="showAnswer('L5-checkup-b-2', 'where to go')">답 보기</button>
+                        <div id="feedback-L5-checkup-b-2" class="feedback" role="status" aria-live="polite"></div>
+                    </div>
+
+                    <div class="question">
+                        <div class="question-header">
+                            <div class="question-number">3</div>
+                            <div class="question-text">He taught us _____ _____ _____ the machine. (어떻게 사용해야 할지)</div>
+                        </div>
+                        <div class="input-container">
+                            <input type="text" id="L5-checkup-b-3" placeholder="답을 입력하세요">
+                        </div>
+                        <button class="check-btn" onclick="checkAnswer('L5-checkup-b-3', 'how to use')">정답 확인</button>
+                        <button class="show-answer-btn" onclick="showAnswer('L5-checkup-b-3', 'how to use')">답 보기</button>
+                        <div id="feedback-L5-checkup-b-3" class="feedback" role="status" aria-live="polite"></div>
+                    </div>
                 </div>
 
-                <div class="question">
-                    <div class="question-header">
-                        <div class="question-number">3</div>
-                        <div class="question-text">If he _____ a policeman, he would help people.</div>
+                <!-- L5 Level 1 Section -->
+                <div id="L5-level1" class="section">
+                    <h2>Level 1 - 문장 완성하기</h2>
+
+                    <h3>A. 가정법 과거 문장 완성</h3>
+                    <div class="question">
+                        <div class="question-header">
+                            <div class="question-number">1</div>
+                            <div class="question-text">만약 내가 왕이라면, 나는 사람들에게 선물을 줄 텐데.<br>
+                            → _____ I _____ a king, I _____ _____ people presents.</div>
+                        </div>
+                        <div class="input-container">
+                            <input type="text" id="L5-level1-a-1" placeholder="답을 입력하세요 (예: If, were, would give)">
+                        </div>
+                        <button class="check-btn" onclick="checkAnswer('L5-level1-a-1', 'If, were, would give', true)">정답 확인</button>
+                        <button class="show-answer-btn" onclick="showAnswer('L5-level1-a-1', 'If, were, would give')">답 보기</button>
+                        <div id="feedback-L5-level1-a-1" class="feedback" role="status" aria-live="polite"></div>
                     </div>
-                    <div class="input-container">
-                        <input type="text" id="checkup-a-3" placeholder="답을 입력하세요">
+
+                    <div class="question">
+                        <div class="question-header">
+                            <div class="question-number">2</div>
+                            <div class="question-text">만약 눈이 많이 내린다면, 나는 산에서 스키를 탈 텐데.<br>
+                            → _____ it _____ a lot, I _____ _____ in the mountains.</div>
+                        </div>
+                        <div class="input-container">
+                            <input type="text" id="L5-level1-a-2" placeholder="답을 입력하세요">
+                        </div>
+                        <button class="check-btn" onclick="checkAnswer('L5-level1-a-2', 'If, snowed, would ski', true)">정답 확인</button>
+                        <button class="show-answer-btn" onclick="showAnswer('L5-level1-a-2', 'If, snowed, would ski')">답 보기</button>
+                        <div id="feedback-L5-level1-a-2" class="feedback" role="status" aria-live="polite"></div>
                     </div>
-                    <button class="check-btn" onclick="checkAnswer('checkup-a-3', 'were')">정답 확인</button>
-                    <button class="show-answer-btn" onclick="showAnswer('checkup-a-3', 'were')">답 보기</button>
-                    <div id="feedback-checkup-a-3" class="feedback" role="status" aria-live="polite"></div>
+
+                    <div class="question">
+                        <div class="question-header">
+                            <div class="question-number">3</div>
+                            <div class="question-text">만약 그가 열심히 공부한다면, 시험에 합격할 수 있을 텐데.<br>
+                            → _____ he _____ hard, he _____ _____ the exam.</div>
+                        </div>
+                        <div class="input-container">
+                            <input type="text" id="L5-level1-a-3" placeholder="답을 입력하세요">
+                        </div>
+                        <button class="check-btn" onclick="checkAnswer('L5-level1-a-3', 'If, studied, could pass', true)">정답 확인</button>
+                        <button class="show-answer-btn" onclick="showAnswer('L5-level1-a-3', 'If, studied, could pass')">답 보기</button>
+                        <div id="feedback-L5-level1-a-3" class="feedback" role="status" aria-live="polite"></div>
+                    </div>
+
+                    <div class="question">
+                        <div class="question-header">
+                            <div class="question-number">4</div>
+                            <div class="question-text">만약 내가 슈퍼맨이라면, 나는 위험에 처한 사람들을 구할 텐데.<br>
+                            → _____ I _____ Superman, I _____ _____ people in danger.</div>
+                        </div>
+                        <div class="input-container">
+                            <input type="text" id="L5-level1-a-4" placeholder="답을 입력하세요">
+                        </div>
+                        <button class="check-btn" onclick="checkAnswer('L5-level1-a-4', 'If, were, would save', true)">정답 확인</button>
+                        <button class="show-answer-btn" onclick="showAnswer('L5-level1-a-4', 'If, were, would save')">답 보기</button>
+                        <div id="feedback-L5-level1-a-4" class="feedback" role="status" aria-live="polite"></div>
+                    </div>
+
+                    <div class="question">
+                        <div class="question-header">
+                            <div class="question-number">5</div>
+                            <div class="question-text">만약 내가 더 좋은 카메라를 가지고 있다면, 나는 더 좋은 사진을 찍을 수 있을 텐데.<br>
+                            → _____ I _____ a better camera, I _____ _____ better photos.</div>
+                        </div>
+                        <div class="input-container">
+                            <input type="text" id="L5-level1-a-5" placeholder="답을 입력하세요">
+                        </div>
+                        <button class="check-btn" onclick="checkAnswer('L5-level1-a-5', 'If, had, could take', true)">정답 확인</button>
+                        <button class="show-answer-btn" onclick="showAnswer('L5-level1-a-5', 'If, had, could take')">답 보기</button>
+                        <div id="feedback-L5-level1-a-5" class="feedback" role="status" aria-live="polite"></div>
+                    </div>
+
+                    <h3>B. 의문사+to부정사 문장 완성</h3>
+                    <div class="question">
+                        <div class="question-header">
+                            <div class="question-number">1</div>
+                            <div class="question-text">What should I do next? Dad, please tell me _____. (do)</div>
+                        </div>
+                        <div class="input-container">
+                            <input type="text" id="L5-level1-b-1" placeholder="답을 입력하세요">
+                        </div>
+                        <button class="check-btn" onclick="checkAnswerMultiple('L5-level1-b-1', ['what to do', 'what I should do'])">정답 확인</button>
+                        <button class="show-answer-btn" onclick="showAnswer('L5-level1-b-1', 'what to do / what I should do')">답 보기</button>
+                        <div id="feedback-L5-level1-b-1" class="feedback" role="status" aria-live="polite"></div>
+                    </div>
+
+                    <div class="question">
+                        <div class="question-header">
+                            <div class="question-number">2</div>
+                            <div class="question-text">He's still in Seoul. He hasn't decided _____ for America. (leave)</div>
+                        </div>
+                        <div class="input-container">
+                            <input type="text" id="L5-level1-b-2" placeholder="답을 입력하세요">
+                        </div>
+                        <button class="check-btn" onclick="checkAnswerMultiple('L5-level1-b-2', ['when to leave', 'when he should leave'])">정답 확인</button>
+                        <button class="show-answer-btn" onclick="showAnswer('L5-level1-b-2', 'when to leave / when he should leave')">답 보기</button>
+                        <div id="feedback-L5-level1-b-2" class="feedback" role="status" aria-live="polite"></div>
+                    </div>
+
+                    <div class="question">
+                        <div class="question-header">
+                            <div class="question-number">3</div>
+                            <div class="question-text">The manager explained to me _____ the washing machine. (use)</div>
+                        </div>
+                        <div class="input-container">
+                            <input type="text" id="L5-level1-b-3" placeholder="답을 입력하세요">
+                        </div>
+                        <button class="check-btn" onclick="checkAnswerMultiple('L5-level1-b-3', ['how to use', 'how I should use'])">정답 확인</button>
+                        <button class="show-answer-btn" onclick="showAnswer('L5-level1-b-3', 'how to use / how I should use')">답 보기</button>
+                        <div id="feedback-L5-level1-b-3" class="feedback" role="status" aria-live="polite"></div>
+                    </div>
+
+                    <div class="question">
+                        <div class="question-header">
+                            <div class="question-number">4</div>
+                            <div class="question-text">I can't park here. Could you tell me _____? (park)</div>
+                        </div>
+                        <div class="input-container">
+                            <input type="text" id="L5-level1-b-4" placeholder="답을 입력하세요">
+                        </div>
+                        <button class="check-btn" onclick="checkAnswerMultiple('L5-level1-b-4', ['where to park', 'where I should park'])">정답 확인</button>
+                        <button class="show-answer-btn" onclick="showAnswer('L5-level1-b-4', 'where to park / where I should park')">답 보기</button>
+                        <div id="feedback-L5-level1-b-4" class="feedback" role="status" aria-live="polite"></div>
+                    </div>
+
+                    <div class="question">
+                        <div class="question-header">
+                            <div class="question-number">5</div>
+                            <div class="question-text">I like T-shirts in this store. I'm not sure _____. (buy)</div>
+                        </div>
+                        <div class="input-container">
+                            <input type="text" id="L5-level1-b-5" placeholder="답을 입력하세요">
+                        </div>
+                        <button class="check-btn" onclick="checkAnswerMultiple('L5-level1-b-5', ['what to buy', 'what I should buy'])">정답 확인</button>
+                        <button class="show-answer-btn" onclick="showAnswer('L5-level1-b-5', 'what to buy / what I should buy')">답 보기</button>
+                        <div id="feedback-L5-level1-b-5" class="feedback" role="status" aria-live="polite"></div>
+                    </div>
                 </div>
 
-                <h3>B. 의문사+to부정사</h3>
-                <div class="question">
-                    <div class="question-header">
-                        <div class="question-number">1</div>
-                        <div class="question-text">I don't know _____ _____ _____ next. (무엇을 해야 할지)</div>
+                <!-- L5 Level 2 Section -->
+                <div id="L5-level2" class="section">
+                    <h2>Level 2 - 가정법 문장 작성 & 문장 변환</h2>
+
+                    <h3>A. 가정법 문장 작성</h3>
+                    <div class="question">
+                        <div class="question-header">
+                            <div class="question-number">1</div>
+                            <div class="question-text">그가 피곤하지 않다면, 나와 함께 쇼핑을 갈 수 있을 텐데.<br>
+                            → _____</div>
+                        </div>
+                        <div class="input-container">
+                            <input type="text" id="L5-level2-a-1" placeholder="전체 문장을 입력하세요">
+                        </div>
+                        <button class="check-btn" onclick="checkAnswerMultiple('L5-level2-a-1', ['If he weren\'t tired, he could go shopping with me.', 'If he were not tired, he could go shopping with me.'], true)">정답 확인</button>
+                        <button class="show-answer-btn" onclick="showAnswer('L5-level2-a-1', 'If he weren\'t tired, he could go shopping with me. / If he were not tired, he could go shopping with me.')">답 보기</button>
+                        <div id="feedback-L5-level2-a-1" class="feedback" role="status" aria-live="polite"></div>
                     </div>
-                    <div class="input-container">
-                        <input type="text" id="checkup-b-1" placeholder="답을 입력하세요">
+
+                    <div class="question">
+                        <div class="question-header">
+                            <div class="question-number">2</div>
+                            <div class="question-text">내가 유명하다면, 내가 가장 좋아하는 영화배우와 사진을 찍을 텐데.<br>
+                            → _____</div>
+                        </div>
+                        <div class="input-container">
+                            <input type="text" id="L5-level2-a-2" placeholder="전체 문장을 입력하세요">
+                        </div>
+                        <button class="check-btn" onclick="checkAnswerMultiple('L5-level2-a-2', ['If I were famous, I would take photos with my favorite movie star.', 'If I were famous, I would take photos with my favorite actor.', 'If I were famous, I would take photos with my favorite actress.', 'If I were famous, I would take pictures with my favorite movie star.', 'If I were famous, I would take pictures with my favorite actor.', 'If I were famous, I would take pictures with my favorite actress.'], true)">정답 확인</button>
+                        <button class="show-answer-btn" onclick="showAnswer('L5-level2-a-2', 'If I were famous, I would take photos with my favorite movie star. (정답 예시. photos 대신 pictures, movie star 대신 actor 또는 actress 사용 가능)')">답 보기</button>
+                        <div id="feedback-L5-level2-a-2" class="feedback" role="status" aria-live="polite"></div>
                     </div>
-                    <button class="check-btn" onclick="checkAnswer('checkup-b-1', 'what to do')">정답 확인</button>
-                    <button class="show-answer-btn" onclick="showAnswer('checkup-b-1', 'what to do')">답 보기</button>
-                    <div id="feedback-checkup-b-1" class="feedback" role="status" aria-live="polite"></div>
+
+                    <div class="question">
+                        <div class="question-header">
+                            <div class="question-number">3</div>
+                            <div class="question-text">그녀가 어른이라면, 전 세계를 여행할 텐데.<br>
+                            → _____</div>
+                        </div>
+                        <div class="input-container">
+                            <input type="text" id="L5-level2-a-3" placeholder="전체 문장을 입력하세요">
+                        </div>
+                        <button class="check-btn" onclick="checkAnswerMultiple('L5-level2-a-3', ['If she were an adult, she would travel all around the world.', 'If she were an adult, she would travel all over the world.'], true)">정답 확인</button>
+                        <button class="show-answer-btn" onclick="showAnswer('L5-level2-a-3', 'If she were an adult, she would travel all around the world. / If she were an adult, she would travel all over the world.')">답 보기</button>
+                        <div id="feedback-L5-level2-a-3" class="feedback" role="status" aria-live="polite"></div>
+                    </div>
+
+                    <div class="question">
+                        <div class="question-header">
+                            <div class="question-number">4</div>
+                            <div class="question-text">내가 타임머신이 있다면, 세종대왕을 만나러 갈 수 있을 텐데.<br>
+                            → _____</div>
+                        </div>
+                        <div class="input-container">
+                            <input type="text" id="L5-level2-a-4" placeholder="전체 문장을 입력하세요">
+                        </div>
+                        <button class="check-btn" onclick="checkAnswer('L5-level2-a-4', 'If I had a time machine, I could go to meet King Sejong.', false, true)">정답 확인</button>
+                        <button class="show-answer-btn" onclick="showAnswer('L5-level2-a-4', 'If I had a time machine, I could go to meet King Sejong.')">답 보기</button>
+                        <div id="feedback-L5-level2-a-4" class="feedback" role="status" aria-live="polite"></div>
+                    </div>
+
+                    <div class="question">
+                        <div class="question-header">
+                            <div class="question-number">5</div>
+                            <div class="question-text">내가 한국의 대통령이라면, 우리나라를 더 아름답게 만들 텐데.<br>
+                            → _____</div>
+                        </div>
+                        <div class="input-container">
+                            <input type="text" id="L5-level2-a-5" placeholder="전체 문장을 입력하세요">
+                        </div>
+                        <button class="check-btn" onclick="checkAnswer('L5-level2-a-5', 'If I were the president of Korea, I would make my country more beautiful.', false, true)">정답 확인</button>
+                        <button class="show-answer-btn" onclick="showAnswer('L5-level2-a-5', 'If I were the president of Korea, I would make my country more beautiful.')">답 보기</button>
+                        <div id="feedback-L5-level2-a-5" class="feedback" role="status" aria-live="polite"></div>
+                    </div>
+
+                    <h3>B. 문장 변환 (의문사+to부정사)</h3>
+                    <div class="question">
+                        <div class="question-header">
+                            <div class="question-number">1</div>
+                            <div class="question-text">I don't know what I should do.<br>
+                            = I don't know _____.</div>
+                        </div>
+                        <div class="input-container">
+                            <input type="text" id="L5-level2-b-1" placeholder="답을 입력하세요">
+                        </div>
+                        <button class="check-btn" onclick="checkAnswer('L5-level2-b-1', 'what to do')">정답 확인</button>
+                        <button class="show-answer-btn" onclick="showAnswer('L5-level2-b-1', 'what to do')">답 보기</button>
+                        <div id="feedback-L5-level2-b-1" class="feedback" role="status" aria-live="polite"></div>
+                    </div>
+
+                    <div class="question">
+                        <div class="question-header">
+                            <div class="question-number">2</div>
+                            <div class="question-text">They didn't decide when they should leave for the station.<br>
+                            = They didn't decide _____.</div>
+                        </div>
+                        <div class="input-container">
+                            <input type="text" id="L5-level2-b-2" placeholder="답을 입력하세요">
+                        </div>
+                        <button class="check-btn" onclick="checkAnswer('L5-level2-b-2', 'when to leave for the station')">정답 확인</button>
+                        <button class="show-answer-btn" onclick="showAnswer('L5-level2-b-2', 'when to leave for the station')">답 보기</button>
+                        <div id="feedback-L5-level2-b-2" class="feedback" role="status" aria-live="polite"></div>
+                    </div>
+
+                    <div class="question">
+                        <div class="question-header">
+                            <div class="question-number">3</div>
+                            <div class="question-text">Could you tell me how I should get to City Hall?<br>
+                            = Could you tell me _____?</div>
+                        </div>
+                        <div class="input-container">
+                            <input type="text" id="L5-level2-b-3" placeholder="답을 입력하세요">
+                        </div>
+                        <button class="check-btn" onclick="checkAnswer('L5-level2-b-3', 'how to get to City Hall')">정답 확인</button>
+                        <button class="show-answer-btn" onclick="showAnswer('L5-level2-b-3', 'how to get to City Hall')">답 보기</button>
+                        <div id="feedback-L5-level2-b-3" class="feedback" role="status" aria-live="polite"></div>
+                    </div>
+
+                    <div class="question">
+                        <div class="question-header">
+                            <div class="question-number">4</div>
+                            <div class="question-text">He asked when he should take out the eggs.<br>
+                            = He asked _____.</div>
+                        </div>
+                        <div class="input-container">
+                            <input type="text" id="L5-level2-b-4" placeholder="답을 입력하세요">
+                        </div>
+                        <button class="check-btn" onclick="checkAnswer('L5-level2-b-4', 'when to take out the eggs')">정답 확인</button>
+                        <button class="show-answer-btn" onclick="showAnswer('L5-level2-b-4', 'when to take out the eggs')">답 보기</button>
+                        <div id="feedback-L5-level2-b-4" class="feedback" role="status" aria-live="polite"></div>
+                    </div>
+
+                    <div class="question">
+                        <div class="question-header">
+                            <div class="question-number">5</div>
+                            <div class="question-text">Do you want to know how you should make friends?<br>
+                            = Do you want to know _____?</div>
+                        </div>
+                        <div class="input-container">
+                            <input type="text" id="L5-level2-b-5" placeholder="답을 입력하세요">
+                        </div>
+                        <button class="check-btn" onclick="checkAnswer('L5-level2-b-5', 'how to make friends')">정답 확인</button>
+                        <button class="show-answer-btn" onclick="showAnswer('L5-level2-b-5', 'how to make friends')">답 보기</button>
+                        <div id="feedback-L5-level2-b-5" class="feedback" role="status" aria-live="polite"></div>
+                    </div>
                 </div>
 
-                <div class="question">
-                    <div class="question-header">
-                        <div class="question-number">2</div>
-                        <div class="question-text">Have you decided _____ _____ _____ for your vacation? (어디로 가야 할지)</div>
+                <!-- L5 Score Section -->
+                <div id="L5-score" class="section">
+                    <h2>Lesson 5 학습 진행 상황</h2>
+                    <div class="score-display">
+                        <h3>현재 점수</h3>
+                        <div class="score">
+                            <span id="L5-correct-count">0</span> / <span id="L5-total-count">0</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" id="L5-progress-fill"></div>
+                        </div>
+                        <p id="L5-score-percentage">정답률: 0%</p>
                     </div>
-                    <div class="input-container">
-                        <input type="text" id="checkup-b-2" placeholder="답을 입력하세요">
-                    </div>
-                    <button class="check-btn" onclick="checkAnswer('checkup-b-2', 'where to go')">정답 확인</button>
-                    <button class="show-answer-btn" onclick="showAnswer('checkup-b-2', 'where to go')">답 보기</button>
-                    <div id="feedback-checkup-b-2" class="feedback" role="status" aria-live="polite"></div>
-                </div>
-
-                <div class="question">
-                    <div class="question-header">
-                        <div class="question-number">3</div>
-                        <div class="question-text">He taught us _____ _____ _____ the machine. (어떻게 사용해야 할지)</div>
-                    </div>
-                    <div class="input-container">
-                        <input type="text" id="checkup-b-3" placeholder="답을 입력하세요">
-                    </div>
-                    <button class="check-btn" onclick="checkAnswer('checkup-b-3', 'how to use')">정답 확인</button>
-                    <button class="show-answer-btn" onclick="showAnswer('checkup-b-3', 'how to use')">답 보기</button>
-                    <div id="feedback-checkup-b-3" class="feedback" role="status" aria-live="polite"></div>
+                    <button class="reset-btn" onclick="resetQuiz('L5')">Lesson 5 퀴즈 초기화</button>
                 </div>
             </div>
+        </div>
 
-            <!-- Level 1 Section -->
-            <div id="level1" class="section">
-                <h2>Level 1 - 문장 완성하기</h2>
-                
-                <h3>A. 가정법 과거 문장 완성</h3>
-                <div class="question">
-                    <div class="question-header">
-                        <div class="question-number">1</div>
-                        <div class="question-text">만약 내가 왕이라면, 나는 사람들에게 선물을 줄 텐데.<br>
-                        → _____ I _____ a king, I _____ _____ people presents.</div>
-                    </div>
-                    <div class="input-container">
-                        <input type="text" id="level1-a-1" placeholder="답을 입력하세요 (예: If, were, would give)">
-                    </div>
-                    <button class="check-btn" onclick="checkAnswer('level1-a-1', 'If, were, would give', true)">정답 확인</button>
-                    <button class="show-answer-btn" onclick="showAnswer('level1-a-1', 'If, were, would give')">답 보기</button>
-                    <div id="feedback-level1-a-1" class="feedback" role="status" aria-live="polite"></div>
-                </div>
-
-                <div class="question">
-                    <div class="question-header">
-                        <div class="question-number">2</div>
-                        <div class="question-text">만약 눈이 많이 내린다면, 나는 산에서 스키를 탈 텐데.<br>
-                        → _____ it _____ a lot, I _____ _____ in the mountains.</div>
-                    </div>
-                    <div class="input-container">
-                        <input type="text" id="level1-a-2" placeholder="답을 입력하세요">
-                    </div>
-                    <button class="check-btn" onclick="checkAnswer('level1-a-2', 'If, snowed, would ski', true)">정답 확인</button>
-                    <button class="show-answer-btn" onclick="showAnswer('level1-a-2', 'If, snowed, would ski')">답 보기</button>
-                    <div id="feedback-level1-a-2" class="feedback" role="status" aria-live="polite"></div>
-                </div>
-
-                <div class="question">
-                    <div class="question-header">
-                        <div class="question-number">3</div>
-                        <div class="question-text">만약 그가 열심히 공부한다면, 시험에 합격할 수 있을 텐데.<br>
-                        → _____ he _____ hard, he _____ _____ the exam.</div>
-                    </div>
-                    <div class="input-container">
-                        <input type="text" id="level1-a-3" placeholder="답을 입력하세요">
-                    </div>
-                    <button class="check-btn" onclick="checkAnswer('level1-a-3', 'If, studied, could pass', true)">정답 확인</button>
-                    <button class="show-answer-btn" onclick="showAnswer('level1-a-3', 'If, studied, could pass')">답 보기</button>
-                    <div id="feedback-level1-a-3" class="feedback" role="status" aria-live="polite"></div>
-                </div>
-
-                <div class="question">
-                    <div class="question-header">
-                        <div class="question-number">4</div>
-                        <div class="question-text">만약 내가 슈퍼맨이라면, 나는 위험에 처한 사람들을 구할 텐데.<br>
-                        → _____ I _____ Superman, I _____ _____ people in danger.</div>
-                    </div>
-                    <div class="input-container">
-                        <input type="text" id="level1-a-4" placeholder="답을 입력하세요">
-                    </div>
-                    <button class="check-btn" onclick="checkAnswer('level1-a-4', 'If, were, would save', true)">정답 확인</button>
-                    <button class="show-answer-btn" onclick="showAnswer('level1-a-4', 'If, were, would save')">답 보기</button>
-                    <div id="feedback-level1-a-4" class="feedback" role="status" aria-live="polite"></div>
-                </div>
-
-                <div class="question">
-                    <div class="question-header">
-                        <div class="question-number">5</div>
-                        <div class="question-text">만약 내가 더 좋은 카메라를 가지고 있다면, 나는 더 좋은 사진을 찍을 수 있을 텐데.<br>
-                        → _____ I _____ a better camera, I _____ _____ better photos.</div>
-                    </div>
-                    <div class="input-container">
-                        <input type="text" id="level1-a-5" placeholder="답을 입력하세요">
-                    </div>
-                    <button class="check-btn" onclick="checkAnswer('level1-a-5', 'If, had, could take', true)">정답 확인</button>
-                    <button class="show-answer-btn" onclick="showAnswer('level1-a-5', 'If, had, could take')">답 보기</button>
-                    <div id="feedback-level1-a-5" class="feedback" role="status" aria-live="polite"></div>
-                </div>
-
-                <h3>B. 의문사+to부정사 문장 완성</h3>
-                <div class="question">
-                    <div class="question-header">
-                        <div class="question-number">1</div>
-                        <div class="question-text">What should I do next? Dad, please tell me _____. (do)</div>
-                    </div>
-                    <div class="input-container">
-                        <input type="text" id="level1-b-1" placeholder="답을 입력하세요">
-                    </div>
-                    <button class="check-btn" onclick="checkAnswerMultiple('level1-b-1', ['what to do', 'what I should do'])">정답 확인</button>
-                    <button class="show-answer-btn" onclick="showAnswer('level1-b-1', 'what to do / what I should do')">답 보기</button>
-                    <div id="feedback-level1-b-1" class="feedback" role="status" aria-live="polite"></div>
-                </div>
-
-                <div class="question">
-                    <div class="question-header">
-                        <div class="question-number">2</div>
-                        <div class="question-text">He's still in Seoul. He hasn't decided _____ for America. (leave)</div>
-                    </div>
-                    <div class="input-container">
-                        <input type="text" id="level1-b-2" placeholder="답을 입력하세요">
-                    </div>
-                    <button class="check-btn" onclick="checkAnswerMultiple('level1-b-2', ['when to leave', 'when he should leave'])">정답 확인</button>
-                    <button class="show-answer-btn" onclick="showAnswer('level1-b-2', 'when to leave / when he should leave')">답 보기</button>
-                    <div id="feedback-level1-b-2" class="feedback" role="status" aria-live="polite"></div>
-                </div>
-
-                <div class="question">
-                    <div class="question-header">
-                        <div class="question-number">3</div>
-                        <div class="question-text">The manager explained to me _____ the washing machine. (use)</div>
-                    </div>
-                    <div class="input-container">
-                        <input type="text" id="level1-b-3" placeholder="답을 입력하세요">
-                    </div>
-                    <button class="check-btn" onclick="checkAnswerMultiple('level1-b-3', ['how to use', 'how I should use'])">정답 확인</button>
-                    <button class="show-answer-btn" onclick="showAnswer('level1-b-3', 'how to use / how I should use')">답 보기</button>
-                    <div id="feedback-level1-b-3" class="feedback" role="status" aria-live="polite"></div>
-                </div>
-
-                <div class="question">
-                    <div class="question-header">
-                        <div class="question-number">4</div>
-                        <div class="question-text">I can't park here. Could you tell me _____? (park)</div>
-                    </div>
-                    <div class="input-container">
-                        <input type="text" id="level1-b-4" placeholder="답을 입력하세요">
-                    </div>
-                    <button class="check-btn" onclick="checkAnswerMultiple('level1-b-4', ['where to park', 'where I should park'])">정답 확인</button>
-                    <button class="show-answer-btn" onclick="showAnswer('level1-b-4', 'where to park / where I should park')">답 보기</button>
-                    <div id="feedback-level1-b-4" class="feedback" role="status" aria-live="polite"></div>
-                </div>
-
-                <div class="question">
-                    <div class="question-header">
-                        <div class="question-number">5</div>
-                        <div class="question-text">I like T-shirts in this store. I'm not sure _____. (buy)</div>
-                    </div>
-                    <div class="input-container">
-                        <input type="text" id="level1-b-5" placeholder="답을 입력하세요">
-                    </div>
-                    <button class="check-btn" onclick="checkAnswerMultiple('level1-b-5', ['what to buy', 'what I should buy'])">정답 확인</button>
-                    <button class="show-answer-btn" onclick="showAnswer('level1-b-5', 'what to buy / what I should buy')">답 보기</button>
-                    <div id="feedback-level1-b-5" class="feedback" role="status" aria-live="polite"></div>
-                </div>
+        <!-- Lesson 6 Content -->
+        <div class="lesson-content" id="lesson6Content">
+            <div class="navigation">
+                <button class="nav-btn active" onclick="showSection(this, 'L6-grammar')">문법 정리</button>
+                <button class="nav-btn" onclick="showSection(this, 'L6-checkup')">Check Up</button>
+                <button class="nav-btn" onclick="showSection(this, 'L6-level1')">Level 1</button>
+                <button class="nav-btn" onclick="showSection(this, 'L6-level2')">Level 2</button>
+                <button class="nav-btn" onclick="showSection(this, 'L6-score')">점수 확인</button>
             </div>
 
-            <!-- Level 2 Section -->
-            <div id="level2" class="section">
-                <h2>Level 2 - 가정법 문장 작성 & 문장 변환</h2>
-                
-                <h3>A. 가정법 문장 작성</h3>
-                <div class="question">
-                    <div class="question-header">
-                        <div class="question-number">1</div>
-                        <div class="question-text">그가 피곤하지 않다면, 나와 함께 쇼핑을 갈 수 있을 텐데.<br>
-                        → _____</div>
+            <div class="content">
+                <!-- L6 Grammar Section -->
+                <div id="L6-grammar" class="section active">
+                    <div class="grammar-box">
+                        <h3>A. 목적을 나타내는 so that</h3>
+                        <ul>
+                            <li><strong>형태:</strong> 주어 + 동사 + so that + 주어 + can/could/may/might + 동사원형</li>
+                            <li><strong>의미:</strong> "~하기 위해서, ~하도록" - 어떤 행동의 목적을 나타냄</li>
+                            <li><strong>바꿔 쓰기:</strong> (so as) to + 동사원형, in order to + 동사원형, in order that + 주어 + can/may + 동사원형</li>
+                        </ul>
+                        <div class="example">
+                            <strong>예문:</strong><br>
+                            He spoke loudly so that everyone could hear him. (그는 모든 사람들이 들을 수 있도록 큰 소리로 말했다.)<br>
+                            Emily went to bed early so that she could get up early. (Emily는 일찍 일어날 수 있도록 일찍 잠자리에 들었다.)<br>
+                            She jogs every morning so that she can stay healthy. (그녀는 건강을 유지하기 위해 매일 아침 조깅한다.)
+                        </div>
                     </div>
-                    <div class="input-container">
-                        <input type="text" id="level2-a-1" placeholder="전체 문장을 입력하세요">
+
+                    <div class="grammar-box">
+                        <h3>B. 형용사/부사 + enough to + 동사원형</h3>
+                        <ul>
+                            <li><strong>형태:</strong> 주어 + be동사 + 형용사 + enough to + 동사원형</li>
+                            <li><strong>의미:</strong> "~하기에 충분히 ...한/하게" - 어떤 일을 하기에 충분한 정도를 나타냄</li>
+                            <li><strong>주의:</strong> enough는 형용사/부사 뒤에 위치함 (↔ too는 앞에 위치)</li>
+                        </ul>
+                        <div class="example">
+                            <strong>예문:</strong><br>
+                            Eric is smart enough to solve difficult math problems. (Eric은 어려운 수학 문제를 풀 만큼 충분히 똑똑하다.)<br>
+                            The boy is not tall enough to reach the top shelf. (그 소년은 선반의 맨 위에 닿을 만큼 충분히 키가 크지 않다.)<br>
+                            The box is big enough to carry 20 books. (그 상자는 20권의 책을 담을 만큼 충분히 크다.)<br>
+                            <br>
+                            cf. too + 형용사/부사 + to + 동사원형: "너무 ~해서 ...할 수 없다"<br>
+                            The tea is too hot to drink. (그 차는 마시기에는 너무 뜨겁다.)
+                        </div>
                     </div>
-                    <button class="check-btn" onclick="checkAnswerMultiple('level2-a-1', ['If he weren\'t tired, he could go shopping with me.', 'If he were not tired, he could go shopping with me.'], true)">정답 확인</button>
-                    <button class="show-answer-btn" onclick="showAnswer('level2-a-1', 'If he weren\'t tired, he could go shopping with me. / If he were not tired, he could go shopping with me.')">답 보기</button>
-                    <div id="feedback-level2-a-1" class="feedback" role="status" aria-live="polite"></div>
                 </div>
 
-                <div class="question">
-                    <div class="question-header">
-                        <div class="question-number">2</div>
-                        <div class="question-text">내가 유명하다면, 내가 가장 좋아하는 영화배우와 사진을 찍을 텐데.<br>
-                        → _____</div>
+                <!-- L6 Check Up Section -->
+                <div id="L6-checkup" class="section">
+                    <h2>Check Up - 기본 문법 확인</h2>
+
+                    <h3>A. so that 목적절 - 의미 파악</h3>
+                    <div class="question">
+                        <div class="question-header">
+                            <div class="question-number">1</div>
+                            <div class="question-text">John saved money so that he could buy a new bike.<br>밑줄 친 부분의 의미: _____</div>
+                        </div>
+                        <div class="input-container">
+                            <input type="text" id="L6-checkup-a-1" placeholder="답을 입력하세요">
+                        </div>
+                        <button class="check-btn" onclick="checkAnswerMultiple('L6-checkup-a-1', ['그는 새 자전거를 사기 위해서', '새 자전거를 사기 위해서', '새 자전거를 사기 위해', '그는 새 자전거를 사기 위해'])">정답 확인</button>
+                        <button class="show-answer-btn" onclick="showAnswer('L6-checkup-a-1', '그는 새 자전거를 사기 위해서')">답 보기</button>
+                        <div id="feedback-L6-checkup-a-1" class="feedback" role="status" aria-live="polite"></div>
                     </div>
-                    <div class="input-container">
-                        <input type="text" id="level2-a-2" placeholder="전체 문장을 입력하세요">
+
+                    <div class="question">
+                        <div class="question-header">
+                            <div class="question-number">2</div>
+                            <div class="question-text">She practices hard in order to prepare for the contest.<br>밑줄 친 부분의 의미: _____</div>
+                        </div>
+                        <div class="input-container">
+                            <input type="text" id="L6-checkup-a-2" placeholder="답을 입력하세요">
+                        </div>
+                        <button class="check-btn" onclick="checkAnswerMultiple('L6-checkup-a-2', ['대회를 준비하기 위해서', '대회를 준비하기 위해', '콘테스트를 준비하기 위해서', '콘테스트를 준비하기 위해'])">정답 확인</button>
+                        <button class="show-answer-btn" onclick="showAnswer('L6-checkup-a-2', '대회를 준비하기 위해서')">답 보기</button>
+                        <div id="feedback-L6-checkup-a-2" class="feedback" role="status" aria-live="polite"></div>
                     </div>
-                    <button class="check-btn" onclick="checkAnswerMultiple('level2-a-2', ['If I were famous, I would take photos with my favorite movie star.', 'If I were famous, I would take photos with my favorite actor.', 'If I were famous, I would take photos with my favorite actress.', 'If I were famous, I would take pictures with my favorite movie star.', 'If I were famous, I would take pictures with my favorite actor.', 'If I were famous, I would take pictures with my favorite actress.'], true)">정답 확인</button>
-                    <button class="show-answer-btn" onclick="showAnswer('level2-a-2', 'If I were famous, I would take photos with my favorite movie star. (정답 예시. photos 대신 pictures, movie star 대신 actor 또는 actress 사용 가능)')">답 보기</button>
-                    <div id="feedback-level2-a-2" class="feedback" role="status" aria-live="polite"></div>
+
+                    <div class="question">
+                        <div class="question-header">
+                            <div class="question-number">3</div>
+                            <div class="question-text">I went to bed early so that I could catch the first train.<br>밑줄 친 부분의 의미: _____</div>
+                        </div>
+                        <div class="input-container">
+                            <input type="text" id="L6-checkup-a-3" placeholder="답을 입력하세요">
+                        </div>
+                        <button class="check-btn" onclick="checkAnswerMultiple('L6-checkup-a-3', ['나는 첫 기차를 타기 위해서', '첫 기차를 타기 위해서', '첫 기차를 타기 위해', '나는 첫 기차를 타기 위해'])">정답 확인</button>
+                        <button class="show-answer-btn" onclick="showAnswer('L6-checkup-a-3', '나는 첫 기차를 타기 위해서')">답 보기</button>
+                        <div id="feedback-L6-checkup-a-3" class="feedback" role="status" aria-live="polite"></div>
+                    </div>
+
+                    <h3>B. enough to 구문 - 알맞은 형태 선택</h3>
+                    <div class="question">
+                        <div class="question-header">
+                            <div class="question-number">1</div>
+                            <div class="question-text">We're old (too / enough) to look after ourselves.</div>
+                        </div>
+                        <div class="input-container">
+                            <input type="text" id="L6-checkup-b-1" placeholder="답을 입력하세요">
+                        </div>
+                        <button class="check-btn" onclick="checkAnswer('L6-checkup-b-1', 'enough')">정답 확인</button>
+                        <button class="show-answer-btn" onclick="showAnswer('L6-checkup-b-1', 'enough')">답 보기</button>
+                        <div id="feedback-L6-checkup-b-1" class="feedback" role="status" aria-live="polite"></div>
+                    </div>
+
+                    <div class="question">
+                        <div class="question-header">
+                            <div class="question-number">2</div>
+                            <div class="question-text">That box isn't strong (so / enough) to sit on.</div>
+                        </div>
+                        <div class="input-container">
+                            <input type="text" id="L6-checkup-b-2" placeholder="답을 입력하세요">
+                        </div>
+                        <button class="check-btn" onclick="checkAnswer('L6-checkup-b-2', 'enough')">정답 확인</button>
+                        <button class="show-answer-btn" onclick="showAnswer('L6-checkup-b-2', 'enough')">답 보기</button>
+                        <div id="feedback-L6-checkup-b-2" class="feedback" role="status" aria-live="polite"></div>
+                    </div>
+
+                    <div class="question">
+                        <div class="question-header">
+                            <div class="question-number">3</div>
+                            <div class="question-text">This car is (too / enough) small to carry eight people.</div>
+                        </div>
+                        <div class="input-container">
+                            <input type="text" id="L6-checkup-b-3" placeholder="답을 입력하세요">
+                        </div>
+                        <button class="check-btn" onclick="checkAnswer('L6-checkup-b-3', 'too')">정답 확인</button>
+                        <button class="show-answer-btn" onclick="showAnswer('L6-checkup-b-3', 'too')">답 보기</button>
+                        <div id="feedback-L6-checkup-b-3" class="feedback" role="status" aria-live="polite"></div>
+                    </div>
                 </div>
 
-                <div class="question">
-                    <div class="question-header">
-                        <div class="question-number">3</div>
-                        <div class="question-text">그녀가 어른이라면, 전 세계를 여행할 텐데.<br>
-                        → _____</div>
+                <!-- L6 Level 1 Section -->
+                <div id="L6-level1" class="section">
+                    <h2>Level 1 - 문장 완성하기</h2>
+
+                    <h3>A. so that 구문 변환</h3>
+                    <div class="question">
+                        <div class="question-header">
+                            <div class="question-number">1</div>
+                            <div class="question-text">Yumi studies hard to pass the exam<br>
+                            = Yumi studies hard _____ pass the exam.<br>
+                            = Yumi studies hard _____ pass the exam.</div>
+                        </div>
+                        <div class="input-container">
+                            <input type="text" id="L6-level1-a-1" placeholder="첫 번째 빈칸 답을 입력하세요">
+                        </div>
+                        <button class="check-btn" onclick="checkAnswer('L6-level1-a-1', 'in order to')">정답 확인</button>
+                        <button class="show-answer-btn" onclick="showAnswer('L6-level1-a-1', 'in order to')">답 보기</button>
+                        <div id="feedback-L6-level1-a-1" class="feedback" role="status" aria-live="polite"></div>
+
+                        <div class="input-container">
+                            <input type="text" id="L6-level1-a-1-2" placeholder="두 번째 빈칸 답을 입력하세요">
+                        </div>
+                        <button class="check-btn" onclick="checkAnswerMultiple('L6-level1-a-1-2', ['so that she can', 'so that she could'])">정답 확인</button>
+                        <button class="show-answer-btn" onclick="showAnswer('L6-level1-a-1-2', 'so that she can')">답 보기</button>
+                        <div id="feedback-L6-level1-a-1-2" class="feedback" role="status" aria-live="polite"></div>
                     </div>
-                    <div class="input-container">
-                        <input type="text" id="level2-a-3" placeholder="전체 문장을 입력하세요">
+
+                    <div class="question">
+                        <div class="question-header">
+                            <div class="question-number">2</div>
+                            <div class="question-text">Minsu turned on the radio to listen to the baseball game.<br>
+                            = Minsu turned on the radio _____.<br>
+                            = Minsu turned on the radio _____.</div>
+                        </div>
+                        <div class="input-container">
+                            <input type="text" id="L6-level1-a-2" placeholder="첫 번째 빈칸 답을 입력하세요">
+                        </div>
+                        <button class="check-btn" onclick="checkAnswer('L6-level1-a-2', 'in order to listen to the baseball game')">정답 확인</button>
+                        <button class="show-answer-btn" onclick="showAnswer('L6-level1-a-2', 'in order to listen to the baseball game')">답 보기</button>
+                        <div id="feedback-L6-level1-a-2" class="feedback" role="status" aria-live="polite"></div>
+
+                        <div class="input-container">
+                            <input type="text" id="L6-level1-a-2-2" placeholder="두 번째 빈칸 답을 입력하세요">
+                        </div>
+                        <button class="check-btn" onclick="checkAnswer('L6-level1-a-2-2', 'so that he could listen to the baseball game')">정답 확인</button>
+                        <button class="show-answer-btn" onclick="showAnswer('L6-level1-a-2-2', 'so that he could listen to the baseball game')">답 보기</button>
+                        <div id="feedback-L6-level1-a-2-2" class="feedback" role="status" aria-live="polite"></div>
                     </div>
-                    <button class="check-btn" onclick="checkAnswerMultiple('level2-a-3', ['If she were an adult, she would travel all around the world.', 'If she were an adult, she would travel all over the world.'], true)">정답 확인</button>
-                    <button class="show-answer-btn" onclick="showAnswer('level2-a-3', 'If she were an adult, she would travel all around the world. / If she were an adult, she would travel all over the world.')">답 보기</button>
-                    <div id="feedback-level2-a-3" class="feedback" role="status" aria-live="polite"></div>
+
+                    <div class="question">
+                        <div class="question-header">
+                            <div class="question-number">3</div>
+                            <div class="question-text">My father went to the airport to pick up my sister.<br>
+                            = My father went to the airport _____.<br>
+                            = My father went to the airport _____.</div>
+                        </div>
+                        <div class="input-container">
+                            <input type="text" id="L6-level1-a-3" placeholder="첫 번째 빈칸 답을 입력하세요">
+                        </div>
+                        <button class="check-btn" onclick="checkAnswer('L6-level1-a-3', 'in order to pick up my sister')">정답 확인</button>
+                        <button class="show-answer-btn" onclick="showAnswer('L6-level1-a-3', 'in order to pick up my sister')">답 보기</button>
+                        <div id="feedback-L6-level1-a-3" class="feedback" role="status" aria-live="polite"></div>
+
+                        <div class="input-container">
+                            <input type="text" id="L6-level1-a-3-2" placeholder="두 번째 빈칸 답을 입력하세요">
+                        </div>
+                        <button class="check-btn" onclick="checkAnswer('L6-level1-a-3-2', 'so that he could pick up my sister')">정답 확인</button>
+                        <button class="show-answer-btn" onclick="showAnswer('L6-level1-a-3-2', 'so that he could pick up my sister')">답 보기</button>
+                        <div id="feedback-L6-level1-a-3-2" class="feedback" role="status" aria-live="polite"></div>
+                    </div>
+
+                    <h3>B. enough to 구문 - 어순 배열</h3>
+                    <div class="question">
+                        <div class="question-header">
+                            <div class="question-number">1</div>
+                            <div class="question-text">She is not _____ a car. (to, old, enough, drive)</div>
+                        </div>
+                        <div class="input-container">
+                            <input type="text" id="L6-level1-b-1" placeholder="답을 입력하세요">
+                        </div>
+                        <button class="check-btn" onclick="checkAnswer('L6-level1-b-1', 'old enough to drive')">정답 확인</button>
+                        <button class="show-answer-btn" onclick="showAnswer('L6-level1-b-1', 'old enough to drive')">답 보기</button>
+                        <div id="feedback-L6-level1-b-1" class="feedback" role="status" aria-live="polite"></div>
+                    </div>
+
+                    <div class="question">
+                        <div class="question-header">
+                            <div class="question-number">2</div>
+                            <div class="question-text">The box is _____ 20 books. (enough, big, carry, to)</div>
+                        </div>
+                        <div class="input-container">
+                            <input type="text" id="L6-level1-b-2" placeholder="답을 입력하세요">
+                        </div>
+                        <button class="check-btn" onclick="checkAnswer('L6-level1-b-2', 'big enough to carry')">정답 확인</button>
+                        <button class="show-answer-btn" onclick="showAnswer('L6-level1-b-2', 'big enough to carry')">답 보기</button>
+                        <div id="feedback-L6-level1-b-2" class="feedback" role="status" aria-live="polite"></div>
+                    </div>
+
+                    <div class="question">
+                        <div class="question-header">
+                            <div class="question-number">3</div>
+                            <div class="question-text">He is _____ the bookshelf. (reach, tall, to, enough)</div>
+                        </div>
+                        <div class="input-container">
+                            <input type="text" id="L6-level1-b-3" placeholder="답을 입력하세요">
+                        </div>
+                        <button class="check-btn" onclick="checkAnswer('L6-level1-b-3', 'tall enough to reach')">정답 확인</button>
+                        <button class="show-answer-btn" onclick="showAnswer('L6-level1-b-3', 'tall enough to reach')">답 보기</button>
+                        <div id="feedback-L6-level1-b-3" class="feedback" role="status" aria-live="polite"></div>
+                    </div>
+
+                    <div class="question">
+                        <div class="question-header">
+                            <div class="question-number">4</div>
+                            <div class="question-text">Mina is _____ the math problem. (smart, to, solve, enough)</div>
+                        </div>
+                        <div class="input-container">
+                            <input type="text" id="L6-level1-b-4" placeholder="답을 입력하세요">
+                        </div>
+                        <button class="check-btn" onclick="checkAnswer('L6-level1-b-4', 'smart enough to solve')">정답 확인</button>
+                        <button class="show-answer-btn" onclick="showAnswer('L6-level1-b-4', 'smart enough to solve')">답 보기</button>
+                        <div id="feedback-L6-level1-b-4" class="feedback" role="status" aria-live="polite"></div>
+                    </div>
+
+                    <div class="question">
+                        <div class="question-header">
+                            <div class="question-number">5</div>
+                            <div class="question-text">Sumi isn't _____ the Ghost House. (enough, brave, go into, to)</div>
+                        </div>
+                        <div class="input-container">
+                            <input type="text" id="L6-level1-b-5" placeholder="답을 입력하세요">
+                        </div>
+                        <button class="check-btn" onclick="checkAnswer('L6-level1-b-5', 'brave enough to go into')">정답 확인</button>
+                        <button class="show-answer-btn" onclick="showAnswer('L6-level1-b-5', 'brave enough to go into')">답 보기</button>
+                        <div id="feedback-L6-level1-b-5" class="feedback" role="status" aria-live="polite"></div>
+                    </div>
+
+                    <div class="question">
+                        <div class="question-header">
+                            <div class="question-number">6</div>
+                            <div class="question-text">Sumin is _____ the ride. (get on, tall, enough, to)</div>
+                        </div>
+                        <div class="input-container">
+                            <input type="text" id="L6-level1-b-6" placeholder="답을 입력하세요">
+                        </div>
+                        <button class="check-btn" onclick="checkAnswer('L6-level1-b-6', 'tall enough to get on')">정답 확인</button>
+                        <button class="show-answer-btn" onclick="showAnswer('L6-level1-b-6', 'tall enough to get on')">답 보기</button>
+                        <div id="feedback-L6-level1-b-6" class="feedback" role="status" aria-live="polite"></div>
+                    </div>
                 </div>
 
-                <div class="question">
-                    <div class="question-header">
-                        <div class="question-number">4</div>
-                        <div class="question-text">내가 타임머신이 있다면, 세종대왕을 만나러 갈 수 있을 텐데.<br>
-                        → _____</div>
+                <!-- L6 Level 2 Section -->
+                <div id="L6-level2" class="section">
+                    <h2>Level 2 - 문장 작성하기</h2>
+
+                    <h3>A. so that을 이용한 문장 완성</h3>
+                    <div class="question">
+                        <div class="question-header">
+                            <div class="question-number">1</div>
+                            <div class="question-text">I turned off the radio _____.<br>
+                            <small>선택: he can be a singer / she can stay healthy / I could concentrate on studying math / everyone can hear you / we could donate them</small></div>
+                        </div>
+                        <div class="input-container">
+                            <input type="text" id="L6-level2-a-1" placeholder="전체 문장을 입력하세요">
+                        </div>
+                        <button class="check-btn" onclick="checkAnswer('L6-level2-a-1', 'so that I could concentrate on studying math')">정답 확인</button>
+                        <button class="show-answer-btn" onclick="showAnswer('L6-level2-a-1', 'so that I could concentrate on studying math')">답 보기</button>
+                        <div id="feedback-L6-level2-a-1" class="feedback" role="status" aria-live="polite"></div>
                     </div>
-                    <div class="input-container">
-                        <input type="text" id="level2-a-4" placeholder="전체 문장을 입력하세요">
+
+                    <div class="question">
+                        <div class="question-header">
+                            <div class="question-number">2</div>
+                            <div class="question-text">We collected old clothes _____.</div>
+                        </div>
+                        <div class="input-container">
+                            <input type="text" id="L6-level2-a-2" placeholder="전체 문장을 입력하세요">
+                        </div>
+                        <button class="check-btn" onclick="checkAnswer('L6-level2-a-2', 'so that we could donate them')">정답 확인</button>
+                        <button class="show-answer-btn" onclick="showAnswer('L6-level2-a-2', 'so that we could donate them')">답 보기</button>
+                        <div id="feedback-L6-level2-a-2" class="feedback" role="status" aria-live="polite"></div>
                     </div>
-                    <button class="check-btn" onclick="checkAnswer('level2-a-4', 'If I had a time machine, I could go to meet King Sejong.', false, true)">정답 확인</button>
-                    <button class="show-answer-btn" onclick="showAnswer('level2-a-4', 'If I had a time machine, I could go to meet King Sejong.')">답 보기</button>
-                    <div id="feedback-level2-a-4" class="feedback" role="status" aria-live="polite"></div>
+
+                    <div class="question">
+                        <div class="question-header">
+                            <div class="question-number">3</div>
+                            <div class="question-text">He practices singing very hard _____.</div>
+                        </div>
+                        <div class="input-container">
+                            <input type="text" id="L6-level2-a-3" placeholder="전체 문장을 입력하세요">
+                        </div>
+                        <button class="check-btn" onclick="checkAnswer('L6-level2-a-3', 'so that he can be a singer')">정답 확인</button>
+                        <button class="show-answer-btn" onclick="showAnswer('L6-level2-a-3', 'so that he can be a singer')">답 보기</button>
+                        <div id="feedback-L6-level2-a-3" class="feedback" role="status" aria-live="polite"></div>
+                    </div>
+
+                    <div class="question">
+                        <div class="question-header">
+                            <div class="question-number">4</div>
+                            <div class="question-text">Yumi swims every morning _____.</div>
+                        </div>
+                        <div class="input-container">
+                            <input type="text" id="L6-level2-a-4" placeholder="전체 문장을 입력하세요">
+                        </div>
+                        <button class="check-btn" onclick="checkAnswer('L6-level2-a-4', 'so that she can stay healthy')">정답 확인</button>
+                        <button class="show-answer-btn" onclick="showAnswer('L6-level2-a-4', 'so that she can stay healthy')">답 보기</button>
+                        <div id="feedback-L6-level2-a-4" class="feedback" role="status" aria-live="polite"></div>
+                    </div>
+
+                    <div class="question">
+                        <div class="question-header">
+                            <div class="question-number">5</div>
+                            <div class="question-text">Please speak louder _____.</div>
+                        </div>
+                        <div class="input-container">
+                            <input type="text" id="L6-level2-a-5" placeholder="전체 문장을 입력하세요">
+                        </div>
+                        <button class="check-btn" onclick="checkAnswer('L6-level2-a-5', 'so that everyone can hear you')">정답 확인</button>
+                        <button class="show-answer-btn" onclick="showAnswer('L6-level2-a-5', 'so that everyone can hear you')">답 보기</button>
+                        <div id="feedback-L6-level2-a-5" class="feedback" role="status" aria-live="polite"></div>
+                    </div>
+
+                    <h3>B. enough to를 사용한 영작</h3>
+                    <div class="question">
+                        <div class="question-header">
+                            <div class="question-number">1</div>
+                            <div class="question-text">그 쥐는 그 구멍을 통과할 만큼 충분히 작다. (go through the hole)<br>
+                            → _____</div>
+                        </div>
+                        <div class="input-container">
+                            <input type="text" id="L6-level2-b-1" placeholder="전체 문장을 입력하세요">
+                        </div>
+                        <button class="check-btn" onclick="checkAnswer('L6-level2-b-1', 'The mouse is small enough to go through the hole.', false, true)">정답 확인</button>
+                        <button class="show-answer-btn" onclick="showAnswer('L6-level2-b-1', 'The mouse is small enough to go through the hole.')">답 보기</button>
+                        <div id="feedback-L6-level2-b-1" class="feedback" role="status" aria-live="polite"></div>
+                    </div>
+
+                    <div class="question">
+                        <div class="question-header">
+                            <div class="question-number">2</div>
+                            <div class="question-text">민호의 영어는 외국인과 이야기할 만큼 충분히 좋다. (talk with a foreigner)<br>
+                            → _____</div>
+                        </div>
+                        <div class="input-container">
+                            <input type="text" id="L6-level2-b-2" placeholder="전체 문장을 입력하세요">
+                        </div>
+                        <button class="check-btn" onclick="checkAnswer('L6-level2-b-2', 'Minho\\'s English is good enough to talk with a foreigner.', false, true)">정답 확인</button>
+                        <button class="show-answer-btn" onclick="showAnswer('L6-level2-b-2', 'Minho\\'s English is good enough to talk with a foreigner.')">답 보기</button>
+                        <div id="feedback-L6-level2-b-2" class="feedback" role="status" aria-live="polite"></div>
+                    </div>
+
+                    <div class="question">
+                        <div class="question-header">
+                            <div class="question-number">3</div>
+                            <div class="question-text">그 가방은 두 개의 축구공을 담을 만큼 충분히 크다. (carry two soccer balls)<br>
+                            → _____</div>
+                        </div>
+                        <div class="input-container">
+                            <input type="text" id="L6-level2-b-3" placeholder="전체 문장을 입력하세요">
+                        </div>
+                        <button class="check-btn" onclick="checkAnswer('L6-level2-b-3', 'The bag is big enough to carry two soccer balls.', false, true)">정답 확인</button>
+                        <button class="show-answer-btn" onclick="showAnswer('L6-level2-b-3', 'The bag is big enough to carry two soccer balls.')">답 보기</button>
+                        <div id="feedback-L6-level2-b-3" class="feedback" role="status" aria-live="polite"></div>
+                    </div>
+
+                    <div class="question">
+                        <div class="question-header">
+                            <div class="question-number">4</div>
+                            <div class="question-text">그 사다리는 선반 꼭대기에 닿을 만큼 길다. (reach the top shelf)<br>
+                            → _____</div>
+                        </div>
+                        <div class="input-container">
+                            <input type="text" id="L6-level2-b-4" placeholder="전체 문장을 입력하세요">
+                        </div>
+                        <button class="check-btn" onclick="checkAnswer('L6-level2-b-4', 'The ladder is long enough to reach the top shelf.', false, true)">정답 확인</button>
+                        <button class="show-answer-btn" onclick="showAnswer('L6-level2-b-4', 'The ladder is long enough to reach the top shelf.')">답 보기</button>
+                        <div id="feedback-L6-level2-b-4" class="feedback" role="status" aria-live="polite"></div>
+                    </div>
+
+                    <div class="question">
+                        <div class="question-header">
+                            <div class="question-number">5</div>
+                            <div class="question-text">그 인형은 주머니에 들어갈 정도로 충분히 작다. (fit into the pocket)<br>
+                            → _____</div>
+                        </div>
+                        <div class="input-container">
+                            <input type="text" id="L6-level2-b-5" placeholder="전체 문장을 입력하세요">
+                        </div>
+                        <button class="check-btn" onclick="checkAnswer('L6-level2-b-5', 'The doll is small enough to fit into the pocket.', false, true)">정답 확인</button>
+                        <button class="show-answer-btn" onclick="showAnswer('L6-level2-b-5', 'The doll is small enough to fit into the pocket.')">답 보기</button>
+                        <div id="feedback-L6-level2-b-5" class="feedback" role="status" aria-live="polite"></div>
+                    </div>
                 </div>
 
-                <div class="question">
-                    <div class="question-header">
-                        <div class="question-number">5</div>
-                        <div class="question-text">내가 한국의 대통령이라면, 우리나라를 더 아름답게 만들 텐데.<br>
-                        → _____</div>
+                <!-- L6 Score Section -->
+                <div id="L6-score" class="section">
+                    <h2>Lesson 6 학습 진행 상황</h2>
+                    <div class="score-display">
+                        <h3>현재 점수</h3>
+                        <div class="score">
+                            <span id="L6-correct-count">0</span> / <span id="L6-total-count">0</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" id="L6-progress-fill"></div>
+                        </div>
+                        <p id="L6-score-percentage">정답률: 0%</p>
                     </div>
-                    <div class="input-container">
-                        <input type="text" id="level2-a-5" placeholder="전체 문장을 입력하세요">
-                    </div>
-                    <button class="check-btn" onclick="checkAnswer('level2-a-5', 'If I were the president of Korea, I would make my country more beautiful.', false, true)">정답 확인</button>
-                    <button class="show-answer-btn" onclick="showAnswer('level2-a-5', 'If I were the president of Korea, I would make my country more beautiful.')">답 보기</button>
-                    <div id="feedback-level2-a-5" class="feedback" role="status" aria-live="polite"></div>
-                </div>
-
-                <h3>B. 문장 변환 (의문사+to부정사)</h3>
-                <div class="question">
-                    <div class="question-header">
-                        <div class="question-number">1</div>
-                        <div class="question-text">I don't know what I should do.<br>
-                        = I don't know _____.</div>
-                    </div>
-                    <div class="input-container">
-                        <input type="text" id="level2-b-1" placeholder="답을 입력하세요">
-                    </div>
-                    <button class="check-btn" onclick="checkAnswer('level2-b-1', 'what to do')">정답 확인</button>
-                    <button class="show-answer-btn" onclick="showAnswer('level2-b-1', 'what to do')">답 보기</button>
-                    <div id="feedback-level2-b-1" class="feedback" role="status" aria-live="polite"></div>
-                </div>
-
-                <div class="question">
-                    <div class="question-header">
-                        <div class="question-number">2</div>
-                        <div class="question-text">They didn't decide when they should leave for the station.<br>
-                        = They didn't decide _____.</div>
-                    </div>
-                    <div class="input-container">
-                        <input type="text" id="level2-b-2" placeholder="답을 입력하세요">
-                    </div>
-                    <button class="check-btn" onclick="checkAnswer('level2-b-2', 'when to leave for the station')">정답 확인</button>
-                    <button class="show-answer-btn" onclick="showAnswer('level2-b-2', 'when to leave for the station')">답 보기</button>
-                    <div id="feedback-level2-b-2" class="feedback" role="status" aria-live="polite"></div>
-                </div>
-
-                <div class="question">
-                    <div class="question-header">
-                        <div class="question-number">3</div>
-                        <div class="question-text">Could you tell me how I should get to City Hall?<br>
-                        = Could you tell me _____?</div>
-                    </div>
-                    <div class="input-container">
-                        <input type="text" id="level2-b-3" placeholder="답을 입력하세요">
-                    </div>
-                    <button class="check-btn" onclick="checkAnswer('level2-b-3', 'how to get to City Hall')">정답 확인</button>
-                    <button class="show-answer-btn" onclick="showAnswer('level2-b-3', 'how to get to City Hall')">답 보기</button>
-                    <div id="feedback-level2-b-3" class="feedback" role="status" aria-live="polite"></div>
-                </div>
-
-                <div class="question">
-                    <div class="question-header">
-                        <div class="question-number">4</div>
-                        <div class="question-text">He asked when he should take out the eggs.<br>
-                        = He asked _____.</div>
-                    </div>
-                    <div class="input-container">
-                        <input type="text" id="level2-b-4" placeholder="답을 입력하세요">
-                    </div>
-                    <button class="check-btn" onclick="checkAnswer('level2-b-4', 'when to take out the eggs')">정답 확인</button>
-                    <button class="show-answer-btn" onclick="showAnswer('level2-b-4', 'when to take out the eggs')">답 보기</button>
-                    <div id="feedback-level2-b-4" class="feedback" role="status" aria-live="polite"></div>
-                </div>
-
-                <div class="question">
-                    <div class="question-header">
-                        <div class="question-number">5</div>
-                        <div class="question-text">Do you want to know how you should make friends?<br>
-                        = Do you want to know _____?</div>
-                    </div>
-                    <div class="input-container">
-                        <input type="text" id="level2-b-5" placeholder="답을 입력하세요">
-                    </div>
-                    <button class="check-btn" onclick="checkAnswer('level2-b-5', 'how to make friends')">정답 확인</button>
-                    <button class="show-answer-btn" onclick="showAnswer('level2-b-5', 'how to make friends')">답 보기</button>
-                    <div id="feedback-level2-b-5" class="feedback" role="status" aria-live="polite"></div>
+                    <button class="reset-btn" onclick="resetQuiz('L6')">Lesson 6 퀴즈 초기화</button>
                 </div>
             </div>
+        </div>
 
-            <!-- Score Section -->
-            <div id="score" class="section">
-                <h2>학습 진행 상황</h2>
-                <div class="score-display">
-                    <h3>현재 점수</h3>
-                    <div class="score">
-                        <span id="correct-count">0</span> / <span id="total-count">0</span>
-                    </div>
-                    <div class="progress-bar">
-                        <div class="progress-fill" id="progress-fill"></div>
-                    </div>
-                    <p id="score-percentage">정답률: 0%</p>
-                </div>
-                <button class="reset-btn" onclick="resetQuiz()">퀴즈 초기화</button>
+        <!-- End Screen Section -->
+        <div id="end-screen" class="section">
+            <h2>수고하셨습니다! 🎉</h2>
+            <p class="message">오늘 퀴즈를 모두 마쳤습니다.</p>
+            <div class="final-score" id="final-score-display">
+                <!-- Score will be inserted here -->
             </div>
-
-            <!-- End Screen Section -->
-            <div id="end-screen" class="section">
-                <h2>수고하셨습니다! 🎉</h2>
-                <p class="message">오늘 퀴즈를 모두 마쳤습니다.</p>
-                <div class="final-score" id="final-score-display">
-                    <!-- Score will be inserted here -->
-                </div>
-                <p class="message">오늘의 노력은 분명 내일의 실력으로 남을 거예요!</p>
-                <div class="end-sparkles" aria-hidden="true"></div>
-                <div style="margin-top: 30px;">
-                    <button type="button" onclick="goToFirst()" class="ghost">처음으로 돌아가기</button>
-                </div>
+            <p class="message">오늘의 노력은 분명 내일의 실력으로 남을 거예요!</p>
+            <div class="end-sparkles" aria-hidden="true"></div>
+            <div style="margin-top: 30px;">
+                <button type="button" onclick="goToFirst()" class="ghost">처음으로 돌아가기</button>
             </div>
         </div>
     </div>
 
     <script>
-        // Global variables with consistent naming
-        let correctAnswers = 0;
-        let totalAnswered = 0;
-        let answeredQuestions = new Set();
-        let soundOn = true; // Default to true
+        // Global variables for tracking
+        let currentLesson = null;
+        let lessonData = {
+            L5: {
+                correctAnswers: 0,
+                totalAnswered: 0,
+                answeredQuestions: new Set()
+            },
+            L6: {
+                correctAnswers: 0,
+                totalAnswered: 0,
+                answeredQuestions: new Set()
+            }
+        };
+        let soundOn = true;
 
         // Sound effects using Web Audio API
         const audioContext = new (window.AudioContext || window.webkitAudioContext)();
 
+        function playConfirmationSound() {
+            if (!soundOn) return;
+
+            const now = audioContext.currentTime;
+            const oscillator = audioContext.createOscillator();
+            const gainNode = audioContext.createGain();
+
+            oscillator.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+
+            // Create a questioning tone
+            oscillator.type = 'sine';
+            oscillator.frequency.setValueAtTime(440, now); // A4
+            oscillator.frequency.setValueAtTime(520, now + 0.1); // C5
+            oscillator.frequency.setValueAtTime(440, now + 0.2); // Back to A4
+
+            gainNode.gain.setValueAtTime(0.2, now);
+            gainNode.gain.exponentialRampToValueAtTime(0.001, now + 0.3);
+
+            oscillator.start(now);
+            oscillator.stop(now + 0.3);
+        }
+
         function playCorrectSound() {
             if (!soundOn) return;
-            
+
             const now = audioContext.currentTime;
-            
+
             // First chord - C5 and E5
             const oscillator1 = audioContext.createOscillator();
             const oscillator2 = audioContext.createOscillator();
             const gainNode = audioContext.createGain();
-            
+
             oscillator1.connect(gainNode);
             oscillator2.connect(gainNode);
             gainNode.connect(audioContext.destination);
-            
+
             oscillator1.frequency.setValueAtTime(523.25, now); // C5
             oscillator2.frequency.setValueAtTime(659.25, now); // E5
-            
+
             gainNode.gain.setValueAtTime(0.3, now);
             gainNode.gain.exponentialRampToValueAtTime(0.001, now + 0.5);
-            
+
             oscillator1.start(now);
             oscillator2.start(now);
             oscillator1.stop(now + 0.5);
-            
+            oscillator2.stop(now + 0.5);
+
             // Second note - G5 (delayed)
             setTimeout(() => {
                 const osc3 = audioContext.createOscillator();
                 const gain2 = audioContext.createGain();
-                
+
                 osc3.connect(gain2);
                 gain2.connect(audioContext.destination);
-                
+
                 osc3.frequency.setValueAtTime(783.99, audioContext.currentTime); // G5
                 gain2.gain.setValueAtTime(0.2, audioContext.currentTime);
                 gain2.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + 0.3);
-                
+
                 osc3.start(audioContext.currentTime);
                 osc3.stop(audioContext.currentTime + 0.3);
             }, 100);
@@ -1005,40 +1687,40 @@
 
         function playIncorrectSound() {
             if (!soundOn) return;
-            
+
             const now = audioContext.currentTime;
-            
+
             // First buzz sound
             const oscillator = audioContext.createOscillator();
             const gainNode = audioContext.createGain();
-            
+
             oscillator.connect(gainNode);
             gainNode.connect(audioContext.destination);
-            
+
             oscillator.type = 'sawtooth';
             oscillator.frequency.setValueAtTime(150, now);
             oscillator.frequency.exponentialRampToValueAtTime(100, now + 0.2);
-            
+
             gainNode.gain.setValueAtTime(0.2, now);
             gainNode.gain.exponentialRampToValueAtTime(0.001, now + 0.2);
-            
+
             oscillator.start(now);
             oscillator.stop(now + 0.2);
-            
+
             // Second lower tone
             setTimeout(() => {
                 const osc2 = audioContext.createOscillator();
                 const gain2 = audioContext.createGain();
-                
+
                 osc2.connect(gain2);
                 gain2.connect(audioContext.destination);
-                
+
                 osc2.type = 'sine';
                 osc2.frequency.setValueAtTime(80, audioContext.currentTime);
-                
+
                 gain2.gain.setValueAtTime(0.15, audioContext.currentTime);
                 gain2.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + 0.15);
-                
+
                 osc2.start(audioContext.currentTime);
                 osc2.stop(audioContext.currentTime + 0.15);
             }, 50);
@@ -1046,51 +1728,51 @@
 
         function playPageTurnSound() {
             if (!soundOn) return;
-            
+
             const now = audioContext.currentTime;
             const oscillator = audioContext.createOscillator();
             const gainNode = audioContext.createGain();
-            
+
             // Create a swoosh sound for page turning
             oscillator.type = 'sine';
             oscillator.frequency.setValueAtTime(200, now);
             oscillator.frequency.exponentialRampToValueAtTime(600, now + 0.1);
             oscillator.frequency.exponentialRampToValueAtTime(100, now + 0.2);
-            
+
             gainNode.gain.setValueAtTime(0, now);
             gainNode.gain.linearRampToValueAtTime(0.15, now + 0.05);
             gainNode.gain.exponentialRampToValueAtTime(0.001, now + 0.2);
-            
+
             oscillator.connect(gainNode);
             gainNode.connect(audioContext.destination);
-            
+
             oscillator.start(now);
             oscillator.stop(now + 0.2);
         }
 
         function playHintSound() {
             if (!soundOn) return;
-            
+
             const now = audioContext.currentTime;
             const oscillator = audioContext.createOscillator();
             const gainNode = audioContext.createGain();
             const filter = audioContext.createBiquadFilter();
-            
+
             oscillator.connect(filter);
             filter.connect(gainNode);
             gainNode.connect(audioContext.destination);
-            
+
             oscillator.type = 'sine';
             filter.type = 'lowpass';
             filter.frequency.setValueAtTime(1000, now);
             filter.frequency.exponentialRampToValueAtTime(200, now + 0.3);
-            
+
             oscillator.frequency.setValueAtTime(400, now);
             oscillator.frequency.exponentialRampToValueAtTime(200, now + 0.3);
-            
+
             gainNode.gain.setValueAtTime(0.1, now);
             gainNode.gain.exponentialRampToValueAtTime(0.001, now + 0.3);
-            
+
             oscillator.start(now);
             oscillator.stop(now + 0.3);
         }
@@ -1121,30 +1803,82 @@
         // Initialize sound setting
         function initSound() {
             const saved = localStorage.getItem('quiz.soundOn');
-            // Default to true (sound on) if no saved setting exists
             soundOn = saved === null ? true : saved === '1';
             updateSoundButton();
         }
 
+        // Lesson selector functions
+        function selectLesson(lesson) {
+            initAudio();
+
+            // Update current lesson
+            currentLesson = lesson === 'lesson5' ? 'L5' : 'L6';
+
+            // Update header title and subtitle
+            const lessonNumber = currentLesson === 'L5' ? '5' : '6';
+            const lessonGrammar = currentLesson === 'L5' ?
+                '가정법 과거 & 의문사+to부정사' :
+                '목적을 나타내는 so that & enough to 부정사';
+
+            document.getElementById('headerTitle').textContent = `Lesson ${lessonNumber} Grammar Quiz`;
+            document.getElementById('headerSubtitle').textContent = lessonGrammar;
+
+            // Show exit button
+            document.getElementById('exitBtn').classList.add('show');
+
+            // Hide lesson selector
+            document.getElementById('lessonSelector').style.display = 'none';
+
+            // Hide all lesson contents
+            document.querySelectorAll('.lesson-content').forEach(content => {
+                content.classList.remove('active');
+            });
+
+            // Show selected lesson content
+            const lessonContent = document.getElementById(`${lesson}Content`);
+            lessonContent.classList.add('active');
+
+            // Update lesson buttons
+            document.querySelectorAll('.lesson-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.closest('.lesson-btn').classList.add('active');
+
+            // Reset section display for selected lesson
+            const prefix = currentLesson;
+            showSection(null, `${prefix}-grammar`);
+
+            // Update navigation buttons
+            const navBtns = lessonContent.querySelectorAll('.nav-btn');
+            navBtns.forEach(btn => btn.classList.remove('active'));
+            if (navBtns[0]) navBtns[0].classList.add('active');
+
+            playPageTurnSound();
+        }
+
         function showSection(btn, sectionId) {
             initAudio();
-            
-            // Hide all sections
-            document.querySelectorAll('.section').forEach(section => {
+
+            // Get current lesson prefix
+            const prefix = sectionId.split('-')[0];
+
+            // Hide all sections within the current lesson
+            document.querySelectorAll(`#${prefix === 'L5' ? 'lesson5' : 'lesson6'}Content .section`).forEach(section => {
                 section.classList.remove('active');
             });
-            
+
             // Show selected section
             const targetSection = document.getElementById(sectionId);
             if (targetSection) {
                 targetSection.classList.add('active');
             }
-            
-            // Update nav buttons
-            document.querySelectorAll('.nav-btn').forEach(navBtn => {
-                navBtn.classList.remove('active');
-            });
-            if (btn && btn.classList) {
+
+            // Update nav buttons within the current lesson
+            if (btn) {
+                const navContainer = btn.parentElement;
+                navContainer.querySelectorAll('.nav-btn').forEach(navBtn => {
+                    navBtn.classList.remove('active');
+                });
                 btn.classList.add('active');
             }
         }
@@ -1152,7 +1886,7 @@
         function normalizeAnswer(answer) {
             return (answer || '')
                 .replace(/'/g, "'")
-                .replace(/[.,;:!?]+/g, ' ')  // Replace all punctuation with space
+                .replace(/[.,;:!?]+/g, ' ')
                 .replace(/\s+/g, ' ')
                 .trim()
                 .toLowerCase();
@@ -1163,23 +1897,24 @@
             const userAnswer = normalizeAnswer(input.value);
             const normalized = normalizeAnswer(correctAnswer);
             const feedback = document.getElementById(`feedback-${inputId}`);
-            
-            const wasAnswered = answeredQuestions.has(inputId);
-            
+
+            // Determine which lesson this belongs to
+            const lesson = inputId.startsWith('L5') ? 'L5' : 'L6';
+            const data = lessonData[lesson];
+
+            const wasAnswered = data.answeredQuestions.has(inputId);
+
             let isCorrect = false;
-            
+
             if (allowPartial) {
-                // For multiple-part answers - split by spaces instead of comma
                 const userParts = userAnswer.split(' ').filter(s => s.length > 0);
                 const correctParts = normalized.split(' ').filter(s => s.length > 0);
-                isCorrect = userParts.length === correctParts.length && 
+                isCorrect = userParts.length === correctParts.length &&
                            userParts.every((part, i) => part === correctParts[i]);
-            } else if (isFullSentence) {
-                isCorrect = userAnswer === normalized;
             } else {
                 isCorrect = userAnswer === normalized;
             }
-            
+
             if (isCorrect) {
                 input.classList.remove('incorrect');
                 input.classList.add('correct');
@@ -1187,40 +1922,63 @@
                 feedback.innerHTML = '✅ 정답입니다! 훌륭해요!';
                 feedback.style.display = 'block';
                 playCorrectSound();
-                
+
                 if (!wasAnswered) {
-                    correctAnswers++;
-                    totalAnswered++;
-                    answeredQuestions.add(inputId);
-                    updateScore();
+                    data.correctAnswers++;
+                    data.totalAnswered++;
+                    data.answeredQuestions.add(inputId);
+                    updateScore(lesson);
                 }
             } else {
                 input.classList.remove('correct');
                 input.classList.add('incorrect');
                 feedback.className = 'feedback incorrect';
                 playIncorrectSound();
-                
+
                 let errorMessage = '❌ 틀렸습니다. ';
-                
+
+                // Add specific error messages based on question type
                 if (inputId.includes('checkup-a')) {
-                    errorMessage += '가정법 과거에서는 동사의 과거형을 사용합니다. be동사는 주어와 관계없이 "were"를 사용할 수 있습니다.';
-                } else if (inputId.includes('checkup-b') || inputId.includes('level1-b')) {
-                    errorMessage += '의문사 + to + 동사원형 형태를 확인해보세요.';
-                } else if (inputId.includes('level1-a')) {
-                    errorMessage += '가정법 과거 구조를 확인하세요: If + 주어 + 과거형, 주어 + would/could + 동사원형';
-                } else if (inputId.includes('level2-a')) {
-                    errorMessage += '가정법 과거 문장 구조와 동사 형태를 다시 확인해보세요.';
-                } else if (inputId.includes('level2-b')) {
-                    errorMessage += '의문사절을 의문사+to부정사로 축약하는 방법을 다시 확인해보세요.';
+                    if (lesson === 'L5') {
+                        errorMessage += '가정법 과거에서는 동사의 과거형을 사용합니다. be동사는 주어와 관계없이 "were"를 사용할 수 있습니다.';
+                    } else {
+                        errorMessage += 'so that 구문의 의미를 다시 확인해보세요. "~하기 위해서"라는 목적을 나타냅니다.';
+                    }
+                } else if (inputId.includes('checkup-b')) {
+                    if (lesson === 'L5') {
+                        errorMessage += '의문사 + to + 동사원형 형태를 확인해보세요.';
+                    } else {
+                        errorMessage += 'enough는 형용사 뒤에 옵니다. too는 "너무 ~해서 할 수 없다"는 부정적 의미입니다.';
+                    }
+                } else if (inputId.includes('level1')) {
+                    if (lesson === 'L5') {
+                        errorMessage += inputId.includes('level1-a') ?
+                            '가정법 과거 구조를 확인하세요: If + 주어 + 과거형, 주어 + would/could + 동사원형' :
+                            '의문사 + to + 동사원형 형태를 확인해보세요.';
+                    } else {
+                        errorMessage += inputId.includes('level1-a') ?
+                            'so that 구문과 in order to 구문의 변환을 확인하세요.' :
+                            'enough to 구문의 어순: 형용사 + enough + to + 동사원형';
+                    }
+                } else if (inputId.includes('level2')) {
+                    if (lesson === 'L5') {
+                        errorMessage += inputId.includes('level2-a') ?
+                            '가정법 과거 문장 구조와 동사 형태를 다시 확인해보세요.' :
+                            '의문사절을 의문사+to부정사로 축약하는 방법을 다시 확인해보세요.';
+                    } else {
+                        errorMessage += inputId.includes('level2-a') ?
+                            '문맥에 맞는 목적절을 선택하세요.' :
+                            'enough to 구문을 사용한 영작을 다시 확인해보세요.';
+                    }
                 }
-                
+
                 feedback.innerHTML = errorMessage;
                 feedback.style.display = 'block';
-                
+
                 if (!wasAnswered) {
-                    totalAnswered++;
-                    answeredQuestions.add(inputId);
-                    updateScore();
+                    data.totalAnswered++;
+                    data.answeredQuestions.add(inputId);
+                    updateScore(lesson);
                 }
             }
         }
@@ -1229,23 +1987,18 @@
             const input = document.getElementById(inputId);
             const userAnswer = normalizeAnswer(input.value);
             const feedback = document.getElementById(`feedback-${inputId}`);
-            
-            const wasAnswered = answeredQuestions.has(inputId);
-            
-            let isCorrect = false;
-            
-            if (isFullSentence) {
-                // For full sentences, normalize both user answer and all choices
-                isCorrect = choices.some(answer => {
-                    const normalizedChoice = normalizeAnswer(answer);
-                    return userAnswer === normalizedChoice;
-                });
-            } else {
-                isCorrect = choices.some(answer => 
-                    normalizeAnswer(answer) === userAnswer
-                );
-            }
-            
+
+            // Determine which lesson this belongs to
+            const lesson = inputId.startsWith('L5') ? 'L5' : 'L6';
+            const data = lessonData[lesson];
+
+            const wasAnswered = data.answeredQuestions.has(inputId);
+
+            let isCorrect = choices.some(answer => {
+                const normalizedChoice = normalizeAnswer(answer);
+                return userAnswer === normalizedChoice;
+            });
+
             if (isCorrect) {
                 input.classList.remove('incorrect');
                 input.classList.add('correct');
@@ -1253,33 +2006,41 @@
                 feedback.innerHTML = '✅ 정답입니다! 훌륭해요!';
                 feedback.style.display = 'block';
                 playCorrectSound();
-                
+
                 if (!wasAnswered) {
-                    correctAnswers++;
-                    totalAnswered++;
-                    answeredQuestions.add(inputId);
-                    updateScore();
+                    data.correctAnswers++;
+                    data.totalAnswered++;
+                    data.answeredQuestions.add(inputId);
+                    updateScore(lesson);
                 }
             } else {
                 input.classList.remove('correct');
                 input.classList.add('incorrect');
                 feedback.className = 'feedback incorrect';
-                
+
                 let errorMessage = '❌ 틀렸습니다. ';
-                if (inputId.includes('level2-a')) {
-                    errorMessage += '가정법 과거 문장 구조와 동사 형태를 다시 확인해보세요.';
+                if (lesson === 'L5') {
+                    if (inputId.includes('level2-a')) {
+                        errorMessage += '가정법 과거 문장 구조와 동사 형태를 다시 확인해보세요.';
+                    } else {
+                        errorMessage += '의문사+to부정사 또는 의문사+주어+should+동사원형 형태를 사용할 수 있습니다.';
+                    }
                 } else {
-                    errorMessage += '의문사+to부정사 또는 의문사+주어+should+동사원형 형태를 사용할 수 있습니다.';
+                    if (inputId.includes('checkup-a')) {
+                        errorMessage += 'so that 구문의 의미를 다시 확인해보세요.';
+                    } else {
+                        errorMessage += '다시 한번 확인해보세요.';
+                    }
                 }
-                
+
                 feedback.innerHTML = errorMessage;
                 feedback.style.display = 'block';
                 playIncorrectSound();
-                
+
                 if (!wasAnswered) {
-                    totalAnswered++;
-                    answeredQuestions.add(inputId);
-                    updateScore();
+                    data.totalAnswered++;
+                    data.answeredQuestions.add(inputId);
+                    updateScore(lesson);
                 }
             }
         }
@@ -1292,78 +2053,78 @@
             playHintSound();
         }
 
-        function updateScore() {
-            document.getElementById('correct-count').textContent = correctAnswers;
-            document.getElementById('total-count').textContent = totalAnswered;
-            
-            const percentage = totalAnswered > 0 ? Math.round((correctAnswers / totalAnswered) * 100) : 0;
-            document.getElementById('score-percentage').textContent = `정답률: ${percentage}%`;
-            document.getElementById('progress-fill').style.width = `${percentage}%`;
+        function updateScore(lesson) {
+            const data = lessonData[lesson];
+            document.getElementById(`${lesson}-correct-count`).textContent = data.correctAnswers;
+            document.getElementById(`${lesson}-total-count`).textContent = data.totalAnswered;
+
+            const percentage = data.totalAnswered > 0 ? Math.round((data.correctAnswers / data.totalAnswered) * 100) : 0;
+            document.getElementById(`${lesson}-score-percentage`).textContent = `정답률: ${percentage}%`;
+            document.getElementById(`${lesson}-progress-fill`).style.width = `${percentage}%`;
         }
 
-        function resetQuiz() {
-            if (!confirm('정말로 퀴즈를 초기화하시겠습니까? 모든 답안과 점수가 초기화됩니다.')) {
+        function resetQuiz(lesson) {
+            if (!confirm(`정말로 Lesson ${lesson === 'L5' ? '5' : '6'} 퀴즈를 초기화하시겠습니까? 모든 답안과 점수가 초기화됩니다.`)) {
                 return;
             }
-            
-            // Reset all inputs
-            document.querySelectorAll('input[type="text"]').forEach(input => {
+
+            // Reset all inputs for the specific lesson
+            document.querySelectorAll(`#${lesson === 'L5' ? 'lesson5' : 'lesson6'}Content input[type="text"]`).forEach(input => {
                 input.value = '';
                 input.classList.remove('correct', 'incorrect');
             });
-            
-            // Hide all feedback
-            document.querySelectorAll('.feedback').forEach(feedback => {
+
+            // Hide all feedback for the specific lesson
+            document.querySelectorAll(`#${lesson === 'L5' ? 'lesson5' : 'lesson6'}Content .feedback`).forEach(feedback => {
                 feedback.style.display = 'none';
             });
-            
-            // Reset scores
-            correctAnswers = 0;
-            totalAnswered = 0;
-            answeredQuestions.clear();
-            updateScore();
-            
-            // Go back to grammar section
-            const grammarBtn = document.querySelector('.nav-btn');
-            showSection(grammarBtn, 'grammar');
-        }
 
-        // Navigation functions
-        function navigateToIndex(idx) {
-            const sections = ['grammar', 'checkup', 'level1', 'level2', 'score'];
-            if (idx < 0) idx = 0;
-            if (idx >= sections.length) idx = sections.length - 1;
-            
-            const targetSectionId = sections[idx];
-            const navBtn = document.querySelector(`.nav-btn[onclick*="${targetSectionId}"]`);
-            if (navBtn) {
-                navBtn.click();
-            }
-            
-            // Play page turn sound effect
-            playPageTurnSound();
-            
-            window.scrollTo({ top: 0, behavior: 'smooth' });
+            // Reset scores for the specific lesson
+            lessonData[lesson].correctAnswers = 0;
+            lessonData[lesson].totalAnswered = 0;
+            lessonData[lesson].answeredQuestions.clear();
+            updateScore(lesson);
+
+            // Go back to grammar section
+            showSection(null, `${lesson}-grammar`);
+            const navBtns = document.querySelectorAll(`#${lesson === 'L5' ? 'lesson5' : 'lesson6'}Content .nav-btn`);
+            navBtns.forEach(btn => btn.classList.remove('active'));
+            if (navBtns[0]) navBtns[0].classList.add('active');
         }
 
         function showEndScreen() {
-            // Update final score
+            // Calculate total scores from both lessons
+            const totalCorrect = lessonData.L5.correctAnswers + lessonData.L6.correctAnswers;
+            const totalAnswered = lessonData.L5.totalAnswered + lessonData.L6.totalAnswered;
+            const percentage = totalAnswered > 0 ? Math.round((totalCorrect / totalAnswered) * 100) : 0;
+
+            // Update final score display
             const finalScoreDisplay = document.getElementById('final-score-display');
-            const percentage = totalAnswered > 0 ? Math.round((correctAnswers / totalAnswered) * 100) : 0;
             finalScoreDisplay.innerHTML = `
-                최종 점수: ${correctAnswers} / ${totalAnswered}<br>
+                Lesson 5: ${lessonData.L5.correctAnswers} / ${lessonData.L5.totalAnswered}<br>
+                Lesson 6: ${lessonData.L6.correctAnswers} / ${lessonData.L6.totalAnswered}<br>
+                <br>
+                전체 점수: ${totalCorrect} / ${totalAnswered}<br>
                 정답률: ${percentage}%
             `;
-            
+
+            // Hide all lesson content
+            document.querySelectorAll('.lesson-content').forEach(content => {
+                content.classList.remove('active');
+            });
+
+            // Show lesson selector
+            document.getElementById('lessonSelector').style.display = 'block';
+
             // Show end screen
             document.querySelectorAll('.section').forEach(section => {
                 section.classList.remove('active');
             });
             document.getElementById('end-screen').classList.add('active');
-            
+
             // Build sparkles animation
             buildSparkles();
-            
+
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
@@ -1383,72 +2144,160 @@
         }
 
         function goToFirst() {
-            const firstBtn = document.querySelector('.navigation .nav-btn');
-            if (firstBtn) {
-                firstBtn.click();
-                window.scrollTo({ top: 0, behavior: 'smooth' });
+            returnToLessonSelector();
+        }
+
+        function returnToLessonSelector() {
+            // Reset header
+            document.getElementById('headerTitle').textContent = 'Grammar Quiz';
+            document.getElementById('headerSubtitle').textContent = 'Lesson 5 & Lesson 6';
+
+            // Hide exit button
+            document.getElementById('exitBtn').classList.remove('show');
+
+            // Show lesson selector
+            document.getElementById('lessonSelector').style.display = 'block';
+
+            // Hide all lesson contents
+            document.querySelectorAll('.lesson-content').forEach(content => {
+                content.classList.remove('active');
+            });
+
+            // Hide end screen
+            document.getElementById('end-screen').classList.remove('active');
+
+            // Reset lesson buttons
+            document.querySelectorAll('.lesson-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+
+            // Reset current lesson
+            currentLesson = null;
+
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // Exit confirmation functions
+        function showExitConfirmation() {
+            initAudio();
+            playConfirmationSound();
+            document.getElementById('confirmationOverlay').classList.add('show');
+        }
+
+        function confirmExit() {
+            document.getElementById('confirmationOverlay').classList.remove('show');
+            playPageTurnSound();
+
+            // Reset quiz data for current lesson
+            if (currentLesson) {
+                // Clear inputs
+                document.querySelectorAll(`#${currentLesson === 'L5' ? 'lesson5' : 'lesson6'}Content input[type="text"]`).forEach(input => {
+                    input.value = '';
+                    input.classList.remove('correct', 'incorrect');
+                });
+
+                // Hide feedback
+                document.querySelectorAll(`#${currentLesson === 'L5' ? 'lesson5' : 'lesson6'}Content .feedback`).forEach(feedback => {
+                    feedback.style.display = 'none';
+                });
+
+                // Reset scores
+                lessonData[currentLesson].correctAnswers = 0;
+                lessonData[currentLesson].totalAnswered = 0;
+                lessonData[currentLesson].answeredQuestions.clear();
+                updateScore(currentLesson);
             }
+
+            returnToLessonSelector();
+        }
+
+        function cancelExit() {
+            document.getElementById('confirmationOverlay').classList.remove('show');
+            playPageTurnSound();
+        }
+
+        // Navigation functions
+        function navigateToIndex(lesson, idx) {
+            const sections = ['grammar', 'checkup', 'level1', 'level2', 'score'];
+            if (idx < 0) idx = 0;
+            if (idx >= sections.length) idx = sections.length - 1;
+
+            const targetSectionId = `${lesson}-${sections[idx]}`;
+            showSection(null, targetSectionId);
+
+            // Update nav buttons
+            const lessonContent = document.getElementById(`${lesson === 'L5' ? 'lesson5' : 'lesson6'}Content`);
+            const navBtns = lessonContent.querySelectorAll('.nav-btn');
+            navBtns.forEach(btn => btn.classList.remove('active'));
+            if (navBtns[idx]) navBtns[idx].classList.add('active');
+
+            playPageTurnSound();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
         // Add navigation controls to sections
         function addNavigationControls() {
+            const lessons = ['L5', 'L6'];
             const sections = ['grammar', 'checkup', 'level1', 'level2', 'score'];
-            
-            sections.forEach((sectionId, idx) => {
-                const section = document.getElementById(sectionId);
-                if (!section) return;
-                
-                // Check if navigation already exists
-                if (section.querySelector('.section-nav')) return;
-                
-                const bar = document.createElement('div');
-                bar.className = 'section-nav';
-                
-                if (idx > 0) {
-                    const prev = document.createElement('button');
-                    prev.className = 'ghost';
-                    prev.type = 'button';
-                    prev.textContent = '← 이전으로';
-                    prev.addEventListener('click', () => navigateToIndex(idx - 1));
-                    bar.appendChild(prev);
-                }
-                
-                if (idx < sections.length - 1) {
-                    const next = document.createElement('button');
-                    next.className = 'primary';
-                    next.type = 'button';
-                    next.textContent = '다음으로 →';
-                    next.addEventListener('click', () => navigateToIndex(idx + 1));
-                    bar.appendChild(next);
-                } else if (idx === sections.length - 1) {
-                    // Last section (score) - only add finish button
-                    const end = document.createElement('button');
-                    end.className = 'primary';
-                    end.type = 'button';
-                    end.textContent = '종료';
-                    end.addEventListener('click', () => {
-                        playPageTurnSound();
-                        showEndScreen();
-                    });
-                    bar.appendChild(end);
-                }
-                
-                section.appendChild(bar);
+
+            lessons.forEach(lesson => {
+                sections.forEach((sectionName, idx) => {
+                    const sectionId = `${lesson}-${sectionName}`;
+                    const section = document.getElementById(sectionId);
+                    if (!section) return;
+
+                    // Check if navigation already exists
+                    if (section.querySelector('.section-nav')) return;
+
+                    const bar = document.createElement('div');
+                    bar.className = 'section-nav';
+
+                    if (idx > 0) {
+                        const prev = document.createElement('button');
+                        prev.className = 'ghost';
+                        prev.type = 'button';
+                        prev.textContent = '← 이전으로';
+                        prev.addEventListener('click', () => navigateToIndex(lesson, idx - 1));
+                        bar.appendChild(prev);
+                    }
+
+                    if (idx < sections.length - 1) {
+                        const next = document.createElement('button');
+                        next.className = 'primary';
+                        next.type = 'button';
+                        next.textContent = '다음으로 →';
+                        next.addEventListener('click', () => navigateToIndex(lesson, idx + 1));
+                        bar.appendChild(next);
+                    } else if (idx === sections.length - 1) {
+                        // Last section (score) - add finish button
+                        const end = document.createElement('button');
+                        end.className = 'primary';
+                        end.type = 'button';
+                        end.textContent = '종료';
+                        end.addEventListener('click', () => {
+                            playPageTurnSound();
+                            showEndScreen();
+                        });
+                        bar.appendChild(end);
+                    }
+
+                    section.appendChild(bar);
+                });
             });
         }
 
-        // Add enter key support for inputs and initialize
+        // Initialize
         document.addEventListener('DOMContentLoaded', function() {
             // Initialize sound setting
             initSound();
-            
+
             // Initialize audio on first interaction
             document.addEventListener('click', initAudio, { once: true });
             document.addEventListener('keydown', initAudio, { once: true });
-            
+
             // Add navigation controls
             addNavigationControls();
-            
+
             // Add enter key support
             document.querySelectorAll('input[type="text"]').forEach(input => {
                 input.addEventListener('keypress', function(e) {
